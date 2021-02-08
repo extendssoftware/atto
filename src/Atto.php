@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsSoftware\Atto;
 
 use Closure;
+use InvalidArgumentException;
 use ReflectionFunction;
 use RuntimeException;
 use Throwable;
@@ -96,17 +97,43 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function data(string $name = null, $value = null)
+    public function data(string $path = null, $value = null)
     {
-        if ($name === null) {
+        if ($path === null) {
             return $this->data;
         }
 
-        if ($value === null) {
-            return $this->data[$name] ?? null;
+        if (!preg_match('~^([a-z0-9]+)((?:\.([a-z0-9]+))*)$~i', $path)) {
+            throw new InvalidArgumentException(sprintf('Path "%s" is not a valid dot notation. Please fix the ' .
+                'notation. The colon (:), dot (.) and slash (/) characters can be used as separator. The can be used ' .
+                'interchangeably. The characters between the separator can only consist of a-z and 0-9, case ' .
+                'insensitive.', $path));
         }
 
-        $this->data[$name] = $value;
+        $reference = &$this->data;
+        $nodes = preg_split('~[:./]~', $path);
+
+        if ($value === null) {
+            foreach ($nodes as $node) {
+                if (is_array($reference) && array_key_exists($node, $reference)) {
+                    $reference = &$reference[$node];
+                } else {
+                    return null;
+                }
+            }
+
+            return $reference;
+        }
+
+        foreach ($nodes as $node) {
+            if (!array_key_exists($node, $reference) || !is_array($reference[$node])) {
+                $reference[$node] = [];
+            }
+
+            $reference = &$reference[$node];
+        }
+
+        $reference = $value;
 
         return $this;
     }

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ExtendsSoftware\Atto;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Throwable;
@@ -55,15 +56,34 @@ class AttoTest extends TestCase
     {
         $atto = new Atto();
         $atto
-            ->data('title', 'New website!')
-            ->data('description', 'Fancy description.');
+            ->data('layout.title', 'New website!')
+            ->data('layout.description', 'Fancy description.');
 
-        self::assertSame('New website!', $atto->data('title'));
-        self::assertNull($atto->data('blog'));
+        self::assertSame('New website!', $atto->data('layout.title'));
+        self::assertNull($atto->data('blog.title'));
+        self::assertNull($atto->data('layout.title.first'));
         self::assertSame([
-            'title' => 'New website!',
-            'description' => 'Fancy description.',
+            'layout' => [
+                'title' => 'New website!',
+                'description' => 'Fancy description.',
+            ],
         ], $atto->data());
+    }
+
+    /**
+     * Test get/set data with invalid path notation.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::data()
+     */
+    public function testDataInvalidPath(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Path ".path.to.set" is not a valid dot notation. Please fix the notation. The ' .
+            'colon (:), dot (.) and slash (/) characters can be used as separator. The can be used interchangeably. ' .
+            'The characters between the separator can only consist of a-z and 0-9, case insensitive.');
+
+        $atto = new Atto();
+        $atto->data('.path.to.set');
     }
 
     /**

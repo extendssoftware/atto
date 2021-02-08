@@ -60,16 +60,19 @@ interface AttoInterface
      * Get/set data from/to the container.
      *
      * When value is null, the current data value for the name will be returned. Null will be returned when data for
-     * name not exists.
+     * name not exists. When both name and value are null, the whole data container will be returned.
      *
-     * When both name and value are null, the whole data container will be returned.
+     * The path can contain dot notation, comes in handy when separating data with the same key (e.g. layout.title and
+     * blog.title). The colon (:), dot (.) and slash (/) characters can be used as separator. The can be used
+     * interchangeably. The characters between the separator can only consist of a-z and 0-9, case insensitive.
      *
-     * @param string|null $name  Name to get/set data for.
+     * @param string|null $path  Dot notation path to get/set data for.
      * @param mixed       $value Value to set.
      *
      * @return AttoInterface|mixed|null Data for name when found, all data, null or AttoInterface for method chaining.
+     * @throws InvalidArgumentException When path dot notation is wrong.
      */
-    public function data(string $name = null, $value = null);
+    public function data(string $path = null, $value = null);
 
     /**
      * Get/set callback for event.
@@ -240,7 +243,7 @@ interface AttoInterface
  * @version 0.1.0
  * @see     https://github.com/extendssoftware/extends-atto
  */
-class Atto implements AttoInterface
+class Atto implements \ExtendsSoftware\Atto\AttoInterface
 {
     /**
      * Filename for view file.
@@ -307,18 +310,46 @@ class Atto implements AttoInterface
 
     /**
      * @inheritDoc
+     *
+     * Validate: '/^([a-z0-9]+)((?:\.([a-z0-9]+))*)$/i'
      */
-    public function data(string $name = null, $value = null)
+    public function data(string $path = null, $value = null)
     {
-        if ($name === null) {
+        if ($path === null) {
             return $this->data;
         }
 
-        if ($value === null) {
-            return $this->data[$name] ?? null;
+        if (!preg_match('~^([a-z0-9]+)((?:\.([a-z0-9]+))*)$~i', $path)) {
+            throw new InvalidArgumentException(sprintf('Path "%s" is not a valid dot notation. Please fix the ' .
+                'notation. The colon (:), dot (.) and slash (/) characters can be used as separator. The can be used ' .
+                'interchangeably. The characters between the separator can only consist of a-z and 0-9, case ' .
+                'insensitive.', $path));
         }
 
-        $this->data[$name] = $value;
+        $reference = &$this->data;
+        $nodes = preg_split('~[:./]~', $path);
+
+        if ($value === null) {
+            foreach ($nodes as $node) {
+                if (is_array($reference) && array_key_exists($node, $reference)) {
+                    $reference = &$reference[$node];
+                } else {
+                    return null;
+                }
+            }
+
+            return $reference;
+        }
+
+        foreach ($nodes as $node) {
+            if (!array_key_exists($node, $reference) || !is_array($reference[$node])) {
+                $reference[$node] = [];
+            }
+
+            $reference = &$reference[$node];
+        }
+
+        $reference = $value;
 
         return $this;
     }

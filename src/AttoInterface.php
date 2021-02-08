@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ExtendsSoftware\Atto;
 
 use Closure;
+use InvalidArgumentException;
 use Throwable;
 
 /**
@@ -65,16 +66,19 @@ interface AttoInterface
      * Get/set data from/to the container.
      *
      * When value is null, the current data value for the name will be returned. Null will be returned when data for
-     * name not exists.
+     * name not exists. When both name and value are null, the whole data container will be returned.
      *
-     * When both name and value are null, the whole data container will be returned.
+     * The path can contain dot notation, comes in handy when separating data with the same key (e.g. layout.title and
+     * blog.title). The colon (:), dot (.) and slash (/) characters can be used as separator. The can be used
+     * interchangeably. The characters between the separator can only consist of a-z and 0-9, case insensitive.
      *
-     * @param string|null $name  Name to get/set data for.
+     * @param string|null $path  Dot notation path to get/set data for.
      * @param mixed       $value Value to set.
      *
      * @return AttoInterface|mixed|null Data for name when found, all data, null or AttoInterface for method chaining.
+     * @throws InvalidArgumentException When path dot notation is wrong.
      */
-    public function data(string $name = null, $value = null);
+    public function data(string $path = null, $value = null);
 
     /**
      * Get/set callback for event.
