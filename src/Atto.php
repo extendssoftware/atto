@@ -173,7 +173,6 @@ class Atto implements AttoInterface
 
         $parameters ??= [];
         $url = $route['pattern'];
-
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
             $url = preg_replace_callback('~\[([^\[\]]+)]~', static function ($match) use ($parameters): string {
@@ -216,7 +215,6 @@ class Atto implements AttoInterface
     public function match(string $path): ?array
     {
         $path = strtok($path, '?');
-
         foreach ($this->routes as $route) {
             $pattern = $route['pattern'];
             if ($pattern === '*') {
@@ -248,7 +246,6 @@ class Atto implements AttoInterface
     {
         $closure = function () use ($filename) {
             ob_start();
-
             try {
                 if (is_file($filename)) {
                     /** @noinspection PhpIncludeInspection */
