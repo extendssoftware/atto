@@ -141,13 +141,16 @@ interface AttoInterface
      * When a required parameter, every parameter outside brackets (e.g. /foo/:bar), is not provided in the parameters
      * array, a Throwable will be thrown.
      *
+     * Optional query string will be added after the route is assembled.
+     *
      * @param string     $name       Name of the route.
      * @param array|null $parameters Route parameters.
+     * @param array|null $query      Query string to add to the assembled URL.
      *
      * @return string Assembled URL for route.
      * @throws Throwable When route with name is not found or when a required parameter for the route is not provided.
      */
-    public function assemble(string $name, array $parameters = null): string;
+    public function assemble(string $name, array $parameters = null, array $query = null): string;
 
     /**
      * Match route for URL path.

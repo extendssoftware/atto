@@ -11,6 +11,7 @@ use Throwable;
 use function array_filter;
 use function array_key_exists;
 use function header;
+use function http_build_query;
 use function is_file;
 use function ob_end_clean;
 use function ob_get_clean;
@@ -187,7 +188,7 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function assemble(string $name, array $parameters = null): string
+    public function assemble(string $name, array $parameters = null, array $query = null): string
     {
         $route = $this->route($name);
         if (!$route) {
@@ -221,7 +222,7 @@ class Atto implements AttoInterface
         } while ($count > 0);
 
         // Find all required parameters.
-        return preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
+        $url = preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
             $parameter = $match[1];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
@@ -234,6 +235,12 @@ class Atto implements AttoInterface
 
             return (string)$parameters[$parameter];
         }, $url);
+
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        return $url;
     }
 
     /**

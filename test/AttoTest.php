@@ -174,6 +174,20 @@ class AttoTest extends TestCase
     }
 
     /**
+     * Test assemble with query string.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleQueryString(): void
+    {
+        $atto = new Atto();
+        $atto->route('blog', '/blog[/:page]');
+
+        self::assertSame('/blog/3?sort=desc', $atto->assemble('blog', ['page' => 3], ['sort' => 'desc']));
+    }
+
+    /**
      * Test assemble with required parameter.
      *
      * @covers \ExtendsSoftware\Atto\Atto::assemble()
