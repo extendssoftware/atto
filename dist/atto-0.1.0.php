@@ -135,13 +135,16 @@ interface AttoInterface
      * When a required parameter, every parameter outside brackets (e.g. /foo/:bar), is not provided in the parameters
      * array, a Throwable will be thrown.
      *
+     * Optional query string will be added after the route is assembled.
+     *
      * @param string     $name       Name of the route.
      * @param array|null $parameters Route parameters.
+     * @param array|null $query      Query string to add to the assembled URL.
      *
      * @return string Assembled URL for route.
      * @throws Throwable When route with name is not found or when a required parameter for the route is not provided.
      */
-    public function assemble(string $name, array $parameters = null): string;
+    public function assemble(string $name, array $parameters = null, array $query = null): string;
 
     /**
      * Match route for URL path.
@@ -243,7 +246,7 @@ interface AttoInterface
  * @version 0.1.0
  * @see     https://github.com/extendssoftware/atto
  */
-class Atto implements \ExtendsSoftware\Atto\AttoInterface
+class Atto implements AttoInterface
 {
     /**
      * Filename for view file.
@@ -310,8 +313,6 @@ class Atto implements \ExtendsSoftware\Atto\AttoInterface
 
     /**
      * @inheritDoc
-     *
-     * Validate: '/^([a-z0-9]+)((?:\.([a-z0-9]+))*)$/i'
      */
     public function data(string $path = null, $value = null)
     {
@@ -403,7 +404,7 @@ class Atto implements \ExtendsSoftware\Atto\AttoInterface
     /**
      * @inheritDoc
      */
-    public function assemble(string $name, array $parameters = null): string
+    public function assemble(string $name, array $parameters = null, array $query = null): string
     {
         $route = $this->route($name);
         if (!$route) {
@@ -437,7 +438,7 @@ class Atto implements \ExtendsSoftware\Atto\AttoInterface
         } while ($count > 0);
 
         // Find all required parameters.
-        return preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
+        $url = preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
             $parameter = $match[1];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
@@ -450,6 +451,12 @@ class Atto implements \ExtendsSoftware\Atto\AttoInterface
 
             return (string)$parameters[$parameter];
         }, $url);
+
+        if (!empty($query)) {
+            $url .= '?' . http_build_query($query);
+        }
+
+        return $url;
     }
 
     /**
