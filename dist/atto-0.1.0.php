@@ -9,7 +9,7 @@ declare(strict_types=1);
  * @package ExtendsSoftware\Atto
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/extends-atto
+ * @see     https://github.com/extendssoftware/atto
  */
 interface AttoInterface
 {
@@ -241,7 +241,7 @@ interface AttoInterface
  * @package ExtendsSoftware\Atto
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/extends-atto
+ * @see     https://github.com/extendssoftware/atto
  */
 class Atto implements \ExtendsSoftware\Atto\AttoInterface
 {

@@ -15,7 +15,7 @@ use Throwable;
  * @package ExtendsSoftware\Atto
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/extends-atto
+ * @see     https://github.com/extendssoftware/atto
  */
 interface AttoInterface
 {
