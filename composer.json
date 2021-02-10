@@ -1,6 +1,6 @@
 {
   "name": "extendssoftware/atto",
-  "description": "A tool based on the builder pattern to configure, route and render a small website.",
+  "description": "Atto is a tool based on the builder pattern to configure, route and render a website in no time.",
   "homepage": "https://github.com/extendssoftware/atto",
   "license": "MIT",
   "authors": [
