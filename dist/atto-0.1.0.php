@@ -14,6 +14,13 @@ declare(strict_types=1);
 interface AttoInterface
 {
     /**
+     * Version of Atto.
+     *
+     * @var string
+     */
+    public const VERSION = '0.1.0';
+
+    /**
      * Event to call callback before routing starts.
      *
      * @var string
