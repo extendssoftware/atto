@@ -10,7 +10,7 @@ use Throwable;
 /**
  * Atto Interface.
  *
- * A tool based on the builder pattern to configure, route and render a small website.
+ * Atto is a tool based on the builder pattern to configure, route and render a website in no time.
  *
  * @package ExtendsSoftware\Atto
  * @author  Vincent van Dijk <vincent@extends.nl>
@@ -19,6 +19,13 @@ use Throwable;
  */
 interface AttoInterface
 {
+    /**
+     * Version of Atto.
+     *
+     * @var string
+     */
+    public const VERSION = '0.1.0';
+
     /**
      * Event to call callback before routing starts.
      *
