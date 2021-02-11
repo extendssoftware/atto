@@ -205,7 +205,7 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null)
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $methods = null)
     {
         if ($name === null) {
             return $this->matched;
@@ -220,6 +220,7 @@ class Atto implements AttoInterface
             'pattern' => $pattern,
             'view' => $view,
             'callback' => $callback,
+            'methods' => $methods ?? ['GET'],
         ];
 
         return $this;
@@ -299,10 +300,14 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function match(string $path): ?array
+    public function match(string $path, string $method): ?array
     {
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
+            if (!in_array($method, $route['methods'], true)) {
+                continue;
+            }
+
             $pattern = $route['pattern'];
             if ($pattern === '*') {
                 return $route;
@@ -385,7 +390,7 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function run(string $path = null): string
+    public function run(string $path = null, string $method = null): string
     {
         try {
             $callback = $this->start();
@@ -396,7 +401,7 @@ class Atto implements AttoInterface
                 }
             }
 
-            $route = $this->match($path ?: $_SERVER['REQUEST_URI']);
+            $route = $this->match($path ?: $_SERVER['REQUEST_URI'], $method ?: $_SERVER['REQUEST_METHOD']);
             if ($route) {
                 $this->matched = $route;
 

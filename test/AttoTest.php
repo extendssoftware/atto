@@ -145,15 +145,27 @@ class AttoTest extends TestCase
         };
 
         $atto = new Atto();
-        $atto->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure);
+        $atto
+            ->route('blog', '/blog')
+            ->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure, ['POST', 'DELETE']);
 
         self::assertSame([
             'name' => 'blog-post',
             'pattern' => '/blog/:subject',
             'view' => './blog-post.phtml',
-            'callback' => $closure
+            'callback' => $closure,
+            'methods' => ['POST', 'DELETE'],
         ], $atto->route('blog-post'));
-        self::assertNull($atto->route('blog'));
+
+        self::assertSame([
+            'name' => 'blog',
+            'pattern' => '/blog',
+            'view' => null,
+            'callback' => null,
+            'methods' => ['GET'],
+        ], $atto->route('blog'));
+
+        self::assertNull($atto->route('home'));
     }
 
     /**
@@ -291,7 +303,7 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto->route('blog', '/blog');
 
-        self::assertSame('blog', $atto->match('/blog')['name']);
+        self::assertSame('blog', $atto->match('/blog', 'GET')['name']);
     }
 
     /**
@@ -304,7 +316,7 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto->route('blog', '/blog/:page');
 
-        self::assertSame('blog', $atto->match('/blog/4')['name']);
+        self::assertSame('blog', $atto->match('/blog/4', 'GET')['name']);
     }
 
     /**
@@ -317,8 +329,8 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto->route('blog-post', '/blog/:slug[/comments/:page]');
 
-        self::assertSame('blog-post', $atto->match('/blog/new-post')['name']);
-        self::assertSame('blog-post', $atto->match('/blog/new-post/comments/4')['name']);
+        self::assertSame('blog-post', $atto->match('/blog/new-post', 'GET')['name']);
+        self::assertSame('blog-post', $atto->match('/blog/new-post/comments/4', 'GET')['name']);
     }
 
     /**
@@ -331,8 +343,8 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto->route('catch-all', '*');
 
-        self::assertSame('catch-all', $atto->match('/blog/new-post')['name']);
-        self::assertSame('catch-all', $atto->match('/help/create-new-post')['name']);
+        self::assertSame('catch-all', $atto->match('/blog/new-post', 'GET')['name']);
+        self::assertSame('catch-all', $atto->match('/help/create-new-post', 'GET')['name']);
     }
 
     /**
@@ -345,7 +357,26 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto->route('blog', '/blog');
 
-        self::assertNull($atto->match('/blog/new-post'));
+        self::assertNull($atto->match('/blog/new-post', 'GET'));
+    }
+
+    /**
+     * Test match URL path to no route.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::match()
+     */
+    public function testMatchRequestMethods(): void
+    {
+        $atto = new Atto();
+        $atto
+            ->route('blog', '/blog', null, null, ['POST', 'DELETE'])
+            ->route('blog-post', '/blog/:slug', null, null, []);
+
+        self::assertNull($atto->match('/blog', 'GET'));
+        self::assertNull($atto->match('/blog/foo-bar', 'GET'));
+
+        self::assertSame('blog', $atto->match('/blog', 'POST')['name']);
+        self::assertSame('blog', $atto->match('/blog', 'DELETE')['name']);
     }
 
     /**
@@ -448,7 +479,7 @@ class AttoTest extends TestCase
                 $this->data('title', 'Homepage');
             });
 
-        static::assertSame('<div><h1>Homepage</h1></div>', $atto->run('/blog'));
+        static::assertSame('<div><h1>Homepage</h1></div>', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -467,7 +498,7 @@ class AttoTest extends TestCase
                 $this->data('title', 'Homepage');
             });
 
-        static::assertSame('<div><h1>Homepage</h1></div>', $atto->run('/blog'));
+        static::assertSame('<div><h1>Homepage</h1></div>', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -482,7 +513,7 @@ class AttoTest extends TestCase
             return 'short circuit';
         });
 
-        static::assertSame('short circuit', $atto->run('/'));
+        static::assertSame('short circuit', $atto->run('/', 'GET'));
     }
 
     /**
@@ -497,7 +528,7 @@ class AttoTest extends TestCase
             return 'short circuit';
         });
 
-        static::assertSame('short circuit', $atto->run('/'));
+        static::assertSame('short circuit', $atto->run('/', 'GET'));
     }
 
     /**
@@ -516,7 +547,7 @@ class AttoTest extends TestCase
                 throw new RuntimeException('short circuit');
             });
 
-        static::assertSame('short circuit 2', $atto->run('/blog'));
+        static::assertSame('short circuit 2', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -531,7 +562,7 @@ class AttoTest extends TestCase
             throw new RuntimeException('short circuit');
         });
 
-        static::assertSame('short circuit', $atto->run('/blog'));
+        static::assertSame('short circuit', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -550,7 +581,7 @@ class AttoTest extends TestCase
                 throw new RuntimeException('short circuit 1');
             });
 
-        static::assertSame('short circuit 2', $atto->run('/blog'));
+        static::assertSame('short circuit 2', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -565,7 +596,7 @@ class AttoTest extends TestCase
             return 'short circuit';
         });
 
-        static::assertSame('short circuit', $atto->run('/blog'));
+        static::assertSame('short circuit', $atto->run('/blog', 'GET'));
     }
 
     /**
@@ -579,7 +610,7 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto
             ->route('blog', '/blog')
-            ->run('/blog');
+            ->run('/blog', 'GET');
 
         self::assertSame('blog', $atto->route()['name']);
     }

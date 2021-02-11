@@ -108,11 +108,12 @@ interface AttoInterface
      * @param string|null  $pattern  URL path pattern to match.
      * @param string|null  $view     Filename to the view file.
      * @param Closure|null $callback Callback to call when route is matched.
+     * @param array|null   $methods  Request methods to match. If null, default method is GET.
      *
      * @return AttoInterface|array|null The route when found, null or AttoInterface for method chaining.
      * @see AttoInterface::assemble() For more information about matching optional and required parameters.
      */
-    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null);
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $methods = null);
 
     /**
      * Redirect to URL.
@@ -168,11 +169,12 @@ interface AttoInterface
      * add a catch-all route as last route. This route can, for example, be used to redirect to a 404 page. Routes
      * will be matched in order they are added (FIFO). Register the mostly used routes first for marginal gains.
      *
-     * @param string|null $path URL path to find matching route for.
+     * @param string $path   URL path to find matching route for.
+     * @param string $method Request method.
      *
      * @return array|null Matched route or null when no route can be matched.
      */
-    public function match(string $path): ?array;
+    public function match(string $path, string $method): ?array;
 
     /**
      * Render file with PHP include.
@@ -240,9 +242,10 @@ interface AttoInterface
      * redirect, the Throwable message will be returned, even when the callback throws a Throwable. This callback is
      * ideal for logging or caching a whole rendered page.
      *
-     * @param string|null $path URL path to match. Default is REQUEST_URI from the server environment.
+     * @param string|null $path   URL path to match. Default is REQUEST_URI from the server environment.
+     * @param string|null $method Request method. Default is REQUEST_METHOD from the server environment.
      *
      * @return string Rendered content. Or the Throwable message on error.
      */
-    public function run(string $path = null): string;
+    public function run(string $path = null, string $method = null): string;
 }
