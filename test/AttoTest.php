@@ -567,4 +567,20 @@ class AttoTest extends TestCase
 
         static::assertSame('short circuit', $atto->run('/blog'));
     }
+
+    /**
+     * Test run and matched route will be returned.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\Atto\Atto::route()
+     */
+    public function testRunMatchedRoute(): void
+    {
+        $atto = new Atto();
+        $atto
+            ->route('blog', '/blog')
+            ->run('/blog');
+
+        self::assertSame('blog', $atto->route()['name']);
+    }
 }

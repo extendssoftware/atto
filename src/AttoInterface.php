@@ -102,7 +102,9 @@ interface AttoInterface
      * a-z character and can be followed by any amount of a-z characters, 0-9 digits and a underscore. All case
      * insensitive.
      *
-     * @param string       $name     Name of the route.
+     * When this method is called without route name, the matched route will be returned.
+     *
+     * @param string|null  $name     Name of the route.
      * @param string|null  $pattern  URL path pattern to match.
      * @param string|null  $view     Filename to the view file.
      * @param Closure|null $callback Callback to call when route is matched.
@@ -110,7 +112,7 @@ interface AttoInterface
      * @return AttoInterface|array|null The route when found, null or AttoInterface for method chaining.
      * @see AttoInterface::assemble() For more information about matching optional and required parameters.
      */
-    public function route(string $name, string $pattern = null, string $view = null, Closure $callback = null);
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null);
 
     /**
      * Redirect to URL.
@@ -218,10 +220,10 @@ interface AttoInterface
      * value will be directly return and the execution ends. The return value will be cast to a string. Ideal callback
      * for something like returning cached pages.
      *
-     * Secondly, Atto tries to find a matching route for (the provided) URL path. When a route matches and has a
-     * filename to a view file set, this filename will be set as view. When a route matches and has a callback, this
-     * callback is called. When the callback returns a truly value, this value will be directly returned and the
-     * execution ends. The return value will be cast to a string.
+     * Secondly, Atto tries to find a matching route for (the provided) URL path. When a route matches, the route will
+     * be saved for further usage. If the route has a filename to a view file set, this filename will be set as view.
+     * When a route matches and has a callback, this callback is called. When the callback returns a truly value, this
+     * value will be directly returned and the execution ends. The return value will be cast to a string.
      *
      * Thirdly, when a view is set, the view file will be rendered. The rendered view is saved to the data container
      * with the key "view", which can be used in the layout to place the view (e.g. $this->data('view')). When layout

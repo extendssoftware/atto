@@ -54,6 +54,13 @@ class Atto implements AttoInterface
     protected array $routes = [];
 
     /**
+     * Matched route.
+     *
+     * @var array|null
+     */
+    protected ?array $matched = null;
+
+    /**
      * Data container.
      *
      * @var array
@@ -198,8 +205,12 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function route(string $name, string $pattern = null, string $view = null, Closure $callback = null)
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null)
     {
+        if ($name === null) {
+            return $this->matched;
+        }
+
         if ($pattern === null) {
             return $this->routes[$name] ?? null;
         }
@@ -387,6 +398,8 @@ class Atto implements AttoInterface
 
             $route = $this->match($path ?: $_SERVER['REQUEST_URI']);
             if ($route) {
+                $this->matched = $route;
+
                 if ($route['view']) {
                     $this->view($route['view']);
                 }
