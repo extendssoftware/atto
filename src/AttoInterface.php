@@ -27,25 +27,31 @@ interface AttoInterface
     public const VERSION = '0.1.0';
 
     /**
-     * Event to call callback before routing starts.
+     * Get/set start callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_START = 'callbackOnStart';
+    public function start(Closure $callback = null);
 
     /**
-     * Event to call callback after render is finished.
+     * Get/set finish callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_FINISH = 'callbackOnFinish';
+    public function finish(Closure $callback = null);
 
     /**
-     * Event to call callback when error occurs.
+     * Get/set error callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_ERROR = 'callbackOnError';
+    public function error(Closure $callback = null);
 
     /**
      * Get/set view file.
@@ -86,19 +92,6 @@ interface AttoInterface
      * @throws InvalidArgumentException When path dot notation is wrong.
      */
     public function data(string $path = null, $value = null);
-
-    /**
-     * Get/set callback for event.
-     *
-     * The callback will be ignored when the event type is not one of the class constants. When callback is null, the
-     * current callback for the event will be returned. Null will be returned when no callback is set.
-     *
-     * @param string       $event    Type of event when to call the callback.
-     * @param Closure|null $callback Callback to call.
-     *
-     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
-     */
-    public function callback(string $event, Closure $callback = null);
 
     /**
      * Get/set route.
@@ -192,7 +185,7 @@ interface AttoInterface
      *
      * When filename is not a file (check with is_file()) then filename will be string and returned by the renderer. By
      * this it is for example possible to get a template from a database. PHP include render does not work with strings
-     * and without the use of eval(). The CALLBACK_ON_FINISH callback can be used to use a parsing engine for this.
+     * and without the use of eval(). The finish callback can be used to use a parsing engine for this.
      *
      * @param string      $filename Filename to render or string to return.
      * @param object|null $newThis  New current object for the included file.
@@ -221,9 +214,9 @@ interface AttoInterface
     /**
      * Run Atto in four steps.
      *
-     * First, when a CALLBACK_ON_START callback is set, this callback will be called. When the callback returns a
-     * truly value, this value will be directly return and the execution ends. The return value will be cast to a
-     * string. Ideal callback for something like returning cached pages.
+     * First, when a start callback is set, this callback will be called. When the callback returns a truly value, this
+     * value will be directly return and the execution ends. The return value will be cast to a string. Ideal callback
+     * for something like returning cached pages.
      *
      * Secondly, Atto tries to find a matching route for (the provided) URL path. When a route matches and has a
      * filename to a view file set, this filename will be set as view. When a route matches and has a callback, this
@@ -231,16 +224,17 @@ interface AttoInterface
      * execution ends. The return value will be cast to a string.
      *
      * Thirdly, when a view is set, the view file will be rendered. The rendered view is saved to the data container
-     * with the key "view", which can be used in the layout to place the view (e.g. $this->data('view')). When layout is
+     * with the key "view", which can be used in the layout to place the view (e.g. $this->data('view')). When layout
+     * is
      * set, the layout will be rendered.
      *
-     * Fourthly, when a CALLBACK_ON_FINISH callback is set, this callback will be called. The rendered content will be
-     * available to the callback as the argument "render" (e.g. function(string $render) {}). When the callback returns
-     * a truly value, this value will replace the rendered content. The return value will be cast to a string. Ideal if
-     * you save the rendered content or want to add some content (e.g. render time for the page).
+     * Fourthly, when a finish callback is set, this callback will be called. The rendered content will be available to
+     * the callback as the argument "render" (e.g. function(string $render) {}). When the callback returns a truly
+     * value, this value will replace the rendered content. The return value will be cast to a string. Ideal if you
+     * save the rendered content or want to add some content (e.g. render time for the page).
      *
-     * When an Throwable occurs and a CALLBACK_ON_ERROR callback is set, this callback will be called with the Throwable
-     * as argument with the key "throwable" (e.g. function(Throwable $throwable) {}). If this callback doesn't do a
+     * When an Throwable occurs and a error callback is set, this callback will be called with the Throwable as
+     * argument with the key "throwable" (e.g. function(Throwable $throwable) {}). If this callback doesn't do a
      * redirect, the Throwable message will be returned, even when the callback throws a Throwable. This callback is
      * ideal for logging or caching a whole rendered page.
      *

@@ -87,20 +87,51 @@ class AttoTest extends TestCase
     }
 
     /**
-     * Test get/set callback.
+     * Test get/set start callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::callback()
+     * @covers \ExtendsSoftware\Atto\Atto::start()
      */
-    public function testCallback(): void
+    public function testStartCallback(): void
     {
         $closure = static function () {
         };
 
         $atto = new Atto();
-        $atto->callback(Atto::CALLBACK_ON_START, $closure);
+        $atto->start($closure);
 
-        self::assertSame($closure, $atto->callback(Atto::CALLBACK_ON_START));
-        self::assertNull($atto->callback(Atto::CALLBACK_ON_FINISH));
+        self::assertSame($closure, $atto->start());
+    }
+
+    /**
+     * Test get/set finish callback.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::finish()
+     */
+    public function testFinishCallback(): void
+    {
+        $closure = static function () {
+        };
+
+        $atto = new Atto();
+        $atto->finish($closure);
+
+        self::assertSame($closure, $atto->finish());
+    }
+
+    /**
+     * Test get/set error callback.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::error()
+     */
+    public function testErrorCallback(): void
+    {
+        $closure = static function () {
+        };
+
+        $atto = new Atto();
+        $atto->error($closure);
+
+        self::assertSame($closure, $atto->error());
     }
 
     /**
@@ -447,7 +478,7 @@ class AttoTest extends TestCase
     public function testRunWithReturnFromStartCallback(): void
     {
         $atto = new Atto();
-        $atto->callback(Atto::CALLBACK_ON_START, function () {
+        $atto->start(function () {
             return 'short circuit';
         });
 
@@ -462,7 +493,7 @@ class AttoTest extends TestCase
     public function testRunWithReturnFromFinishCallback(): void
     {
         $atto = new Atto();
-        $atto->callback(Atto::CALLBACK_ON_FINISH, function () {
+        $atto->finish(function () {
             return 'short circuit';
         });
 
@@ -478,7 +509,7 @@ class AttoTest extends TestCase
     {
         $atto = new Atto();
         $atto
-            ->callback(Atto::CALLBACK_ON_ERROR, function (Throwable $throwable) {
+            ->error(function (Throwable $throwable) {
                 return $throwable->getMessage() . ' 2';
             })
             ->route('blog', '/blog', null, function () {
@@ -512,7 +543,7 @@ class AttoTest extends TestCase
     {
         $atto = new Atto();
         $atto
-            ->callback(Atto::CALLBACK_ON_ERROR, function () {
+            ->error(function () {
                 throw new RuntimeException('short circuit 2');
             })
             ->route('blog', '/blog', null, function () {

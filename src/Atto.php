@@ -61,11 +61,25 @@ class Atto implements AttoInterface
     protected array $data = [];
 
     /**
-     * Callbacks for types of events.
+     * Start callback.
      *
-     * @var Closure[]
+     * @var Closure|null
      */
-    protected array $callbacks = [];
+    protected ?Closure $start = null;
+
+    /**
+     * Finish callback.
+     *
+     * @var Closure|null
+     */
+    protected ?Closure $finish = null;
+
+    /**
+     * Error callback.
+     *
+     * @var Closure|null
+     */
+    protected ?Closure $error = null;
 
     /**
      * @inheritDoc
@@ -142,13 +156,41 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function callback(string $event, Closure $callback = null)
+    public function start(Closure $callback = null)
     {
         if ($callback === null) {
-            return $this->callbacks[$event] ?? null;
+            return $this->start;
         }
 
-        $this->callbacks[$event] = $callback;
+        $this->start = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function finish(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->finish;
+        }
+
+        $this->finish = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function error(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->error;
+        }
+
+        $this->error = $callback;
 
         return $this;
     }
@@ -335,7 +377,7 @@ class Atto implements AttoInterface
     public function run(string $path = null): string
     {
         try {
-            $callback = $this->callback(static::CALLBACK_ON_START);
+            $callback = $this->start();
             if ($callback) {
                 $return = $this->call($callback, $this);
                 if ($return) {
@@ -370,7 +412,7 @@ class Atto implements AttoInterface
                 $render = $this->render($layout, $this);
             }
 
-            $callback = $this->callback(static::CALLBACK_ON_FINISH);
+            $callback = $this->finish();
             if ($callback) {
                 $return = $this->call($callback, $this, [
                     'render' => $render,
@@ -383,7 +425,7 @@ class Atto implements AttoInterface
             return $render;
         } catch (Throwable $throwable) {
             try {
-                $callback = $this->callback(static::CALLBACK_ON_ERROR);
+                $callback = $this->error();
                 if ($callback) {
                     $return = $this->call($callback, $this, [
                         'throwable' => $throwable,
