@@ -4,7 +4,7 @@ declare(strict_types=1);
 /**
  * Atto Interface.
  *
- * A tool based on the builder pattern to configure, route and render a small website.
+ * Atto is a tool based on the builder pattern to configure, route and render a website in no time.
  *
  * @package ExtendsSoftware\Atto
  * @author  Vincent van Dijk <vincent@extends.nl>
@@ -21,25 +21,31 @@ interface AttoInterface
     public const VERSION = '0.1.0';
 
     /**
-     * Event to call callback before routing starts.
+     * Get/set start callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_START = 'callbackOnStart';
+    public function start(Closure $callback = null);
 
     /**
-     * Event to call callback after render is finished.
+     * Get/set finish callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_FINISH = 'callbackOnFinish';
+    public function finish(Closure $callback = null);
 
     /**
-     * Event to call callback when error occurs.
+     * Get/set error callback.
      *
-     * @var string
+     * @param Closure|null $callback
+     *
+     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
      */
-    public const CALLBACK_ON_ERROR = 'callbackOnError';
+    public function error(Closure $callback = null);
 
     /**
      * Get/set view file.
@@ -82,19 +88,6 @@ interface AttoInterface
     public function data(string $path = null, $value = null);
 
     /**
-     * Get/set callback for event.
-     *
-     * The callback will be ignored when the event type is not one of the class constants. When callback is null, the
-     * current callback for the event will be returned. Null will be returned when no callback is set.
-     *
-     * @param string       $event    Type of event when to call the callback.
-     * @param Closure|null $callback Callback to call.
-     *
-     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
-     */
-    public function callback(string $event, Closure $callback = null);
-
-    /**
      * Get/set route.
      *
      * When path is null, the route with name will be returned. Null will be returned when no route with name is set.
@@ -103,15 +96,19 @@ interface AttoInterface
      * a-z character and can be followed by any amount of a-z characters, 0-9 digits and a underscore. All case
      * insensitive.
      *
-     * @param string       $name     Name of the route.
-     * @param string|null  $pattern  URL path pattern to match.
-     * @param string|null  $view     Filename to the view file.
-     * @param Closure|null $callback Callback to call when route is matched.
+     * When this method is called without route name, the matched route will be returned.
+     *
+     * @param string|null  $name        Name of the route.
+     * @param string|null  $pattern     URL path pattern to match.
+     * @param string|null  $view        Filename to the view file.
+     * @param Closure|null $callback    Callback to call when route is matched.
+     * @param array|null   $constraints Parameter constraints.
+     * @param array|null   $methods     Request methods to match. If null, default method is GET.
      *
      * @return AttoInterface|array|null The route when found, null or AttoInterface for method chaining.
      * @see AttoInterface::assemble() For more information about matching optional and required parameters.
      */
-    public function route(string $name, string $pattern = null, string $view = null, Closure $callback = null);
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $constraints = null, array $methods = null);
 
     /**
      * Redirect to URL.
@@ -158,20 +155,26 @@ interface AttoInterface
      *
      * Query string will be ignored when matching a route. A matched route will be enhanced with matched URL parameters.
      *
-     * Every parameter (e.g. :foo) will match any character except a forward slash (/). The whole route pattern must
-     * match the URL path before the route is considered a match. If the webserver add/removes a trailing slash from the
-     * URL, the same has to be done with the route pattern. The URL path /foo/ will not match the route /foo, and /foo
-     * will not match /foo/.
+     * Every parameter (e.g. :foo) will match any character except a forward slash (/) by default. It is possible to add
+     * a constraint for a parameter to only match a certain regular expression. A parameter constraint can be added to
+     * the constraints array of a route and need to be a valid regular expression without the delimiters, which are
+     * added automatically (~ sign) and is case insensitive. When no constraint is provided, [^/]+ will be used for a
+     * parameter.
+     *
+     * The whole route pattern must match the URL path before the route is considered a match. If the webserver
+     * add/removes a trailing slash from the URL, the same has to be done with the route pattern. The URL path /foo/
+     * will not match the route /foo, and /foo will not match /foo/.
      *
      * The route pattern "*" is considered a catch-all route and will match any URL path. It's a good practise to always
      * add a catch-all route as last route. This route can, for example, be used to redirect to a 404 page. Routes
      * will be matched in order they are added (FIFO). Register the mostly used routes first for marginal gains.
      *
-     * @param string|null $path URL path to find matching route for.
+     * @param string $path   URL path to find matching route for.
+     * @param string $method Request method.
      *
      * @return array|null Matched route or null when no route can be matched.
      */
-    public function match(string $path): ?array;
+    public function match(string $path, string $method): ?array;
 
     /**
      * Render file with PHP include.
@@ -186,7 +189,7 @@ interface AttoInterface
      *
      * When filename is not a file (check with is_file()) then filename will be string and returned by the renderer. By
      * this it is for example possible to get a template from a database. PHP include render does not work with strings
-     * and without the use of eval(). The CALLBACK_ON_FINISH callback can be used to use a parsing engine for this.
+     * and without the use of eval(). The finish callback can be used to use a parsing engine for this.
      *
      * @param string      $filename Filename to render or string to return.
      * @param object|null $newThis  New current object for the included file.
@@ -215,34 +218,36 @@ interface AttoInterface
     /**
      * Run Atto in four steps.
      *
-     * First, when a CALLBACK_ON_START callback is set, this callback will be called. When the callback returns a
-     * truly value, this value will be directly return and the execution ends. The return value will be cast to a
-     * string. Ideal callback for something like returning cached pages.
+     * First, when a start callback is set, this callback will be called. When the callback returns a truly value, this
+     * value will be directly return and the execution ends. The return value will be cast to a string. Ideal callback
+     * for something like returning cached pages.
      *
-     * Secondly, Atto tries to find a matching route for (the provided) URL path. When a route matches and has a
-     * filename to a view file set, this filename will be set as view. When a route matches and has a callback, this
-     * callback is called. When the callback returns a truly value, this value will be directly returned and the
-     * execution ends. The return value will be cast to a string.
+     * Secondly, Atto tries to find a matching route for (the provided) URL path. When a route matches, the route will
+     * be saved for further usage. If the route has a filename to a view file set, this filename will be set as view.
+     * When a route matches and has a callback, this callback is called. When the callback returns a truly value, this
+     * value will be directly returned and the execution ends. The return value will be cast to a string.
      *
      * Thirdly, when a view is set, the view file will be rendered. The rendered view is saved to the data container
-     * with the key "view", which can be used in the layout to place the view (e.g. $this->data('view')). When layout is
+     * with the key "view", which can be used in the layout to place the view (e.g. $this->data('view')). When layout
+     * is
      * set, the layout will be rendered.
      *
-     * Fourthly, when a CALLBACK_ON_FINISH callback is set, this callback will be called. The rendered content will be
-     * available to the callback as the argument "render" (e.g. function(string $render) {}). When the callback returns
-     * a truly value, this value will replace the rendered content. The return value will be cast to a string. Ideal if
-     * you save the rendered content or want to add some content (e.g. render time for the page).
+     * Fourthly, when a finish callback is set, this callback will be called. The rendered content will be available to
+     * the callback as the argument "render" (e.g. function(string $render) {}). When the callback returns a truly
+     * value, this value will replace the rendered content. The return value will be cast to a string. Ideal if you
+     * save the rendered content or want to add some content (e.g. render time for the page).
      *
-     * When an Throwable occurs and a CALLBACK_ON_ERROR callback is set, this callback will be called with the Throwable
-     * as argument with the key "throwable" (e.g. function(Throwable $throwable) {}). If this callback doesn't do a
+     * When an Throwable occurs and a error callback is set, this callback will be called with the Throwable as
+     * argument with the key "throwable" (e.g. function(Throwable $throwable) {}). If this callback doesn't do a
      * redirect, the Throwable message will be returned, even when the callback throws a Throwable. This callback is
      * ideal for logging or caching a whole rendered page.
      *
-     * @param string|null $path URL path to match. Default is REQUEST_URI from the server environment.
+     * @param string|null $path   URL path to match. Default is REQUEST_URI from the server environment.
+     * @param string|null $method Request method. Default is REQUEST_METHOD from the server environment.
      *
      * @return string Rendered content. Or the Throwable message on error.
      */
-    public function run(string $path = null): string;
+    public function run(string $path = null, string $method = null): string;
 }
 
 /**
@@ -277,6 +282,13 @@ class Atto implements AttoInterface
     protected array $routes = [];
 
     /**
+     * Matched route.
+     *
+     * @var array|null
+     */
+    protected ?array $matched = null;
+
+    /**
      * Data container.
      *
      * @var array
@@ -284,11 +296,25 @@ class Atto implements AttoInterface
     protected array $data = [];
 
     /**
-     * Callbacks for types of events.
+     * Start callback.
      *
-     * @var Closure[]
+     * @var Closure|null
      */
-    protected array $callbacks = [];
+    protected ?Closure $start = null;
+
+    /**
+     * Finish callback.
+     *
+     * @var Closure|null
+     */
+    protected ?Closure $finish = null;
+
+    /**
+     * Error callback.
+     *
+     * @var Closure|null
+     */
+    protected ?Closure $error = null;
 
     /**
      * @inheritDoc
@@ -365,13 +391,13 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function callback(string $event, Closure $callback = null)
+    public function start(Closure $callback = null)
     {
         if ($callback === null) {
-            return $this->callbacks[$event] ?? null;
+            return $this->start;
         }
 
-        $this->callbacks[$event] = $callback;
+        $this->start = $callback;
 
         return $this;
     }
@@ -379,8 +405,40 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function route(string $name, string $pattern = null, string $view = null, Closure $callback = null)
+    public function finish(Closure $callback = null)
     {
+        if ($callback === null) {
+            return $this->finish;
+        }
+
+        $this->finish = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function error(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->error;
+        }
+
+        $this->error = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $constraints = null, array $methods = null)
+    {
+        if ($name === null) {
+            return $this->matched;
+        }
+
         if ($pattern === null) {
             return $this->routes[$name] ?? null;
         }
@@ -390,6 +448,8 @@ class Atto implements AttoInterface
             'pattern' => $pattern,
             'view' => $view,
             'callback' => $callback,
+            'constraints' => $constraints,
+            'methods' => $methods,
         ];
 
         return $this;
@@ -469,10 +529,14 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function match(string $path): ?array
+    public function match(string $path, string $method): ?array
     {
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
+            if (!in_array($method, $route['methods'] ?? ['GET'], true)) {
+                continue;
+            }
+
             $pattern = $route['pattern'];
             if ($pattern === '*') {
                 return $route;
@@ -484,7 +548,13 @@ class Atto implements AttoInterface
             } while ($count > 0);
 
             // Replace all parameters with a named regular expression group which will not match a forward slash.
-            $pattern = preg_replace('~:([a-z][a-z0-9_]*)~i', '(?<$1>[^/]+)', $pattern);
+            $pattern = preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]*)~i', static function ($match) use ($route): string {
+                return sprintf(
+                    '(?<%s>%s)',
+                    $match['parameter'],
+                    $route['constraints'][$match['parameter']] ?? '[^/]+'
+                );
+            }, $pattern);
             $pattern = '~^' . $pattern . '$~';
             if (preg_match($pattern, $path, $matches)) {
                 $route['matches'] = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
@@ -555,10 +625,10 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function run(string $path = null): string
+    public function run(string $path = null, string $method = null): string
     {
         try {
-            $callback = $this->callback(static::CALLBACK_ON_START);
+            $callback = $this->start();
             if ($callback) {
                 $return = $this->call($callback, $this);
                 if ($return) {
@@ -566,8 +636,10 @@ class Atto implements AttoInterface
                 }
             }
 
-            $route = $this->match($path ?: $_SERVER['REQUEST_URI']);
+            $route = $this->match($path ?: $_SERVER['REQUEST_URI'], $method ?: $_SERVER['REQUEST_METHOD']);
             if ($route) {
+                $this->matched = $route;
+
                 if ($route['view']) {
                     $this->view($route['view']);
                 }
@@ -593,7 +665,7 @@ class Atto implements AttoInterface
                 $render = $this->render($layout, $this);
             }
 
-            $callback = $this->callback(static::CALLBACK_ON_FINISH);
+            $callback = $this->finish();
             if ($callback) {
                 $return = $this->call($callback, $this, [
                     'render' => $render,
@@ -606,7 +678,7 @@ class Atto implements AttoInterface
             return $render;
         } catch (Throwable $throwable) {
             try {
-                $callback = $this->callback(static::CALLBACK_ON_ERROR);
+                $callback = $this->error();
                 if ($callback) {
                     $return = $this->call($callback, $this, [
                         'throwable' => $throwable,
