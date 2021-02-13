@@ -147,13 +147,14 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto
             ->route('blog', '/blog')
-            ->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure, ['POST', 'DELETE']);
+            ->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure, ['subject' => '[\w\-]+'], ['POST', 'DELETE']);
 
         self::assertSame([
             'name' => 'blog-post',
             'pattern' => '/blog/:subject',
             'view' => './blog-post.phtml',
             'callback' => $closure,
+            'constraints' => ['subject' => '[\w\-]+'],
             'methods' => ['POST', 'DELETE'],
         ], $atto->route('blog-post'));
 
@@ -162,6 +163,7 @@ class AttoTest extends TestCase
             'pattern' => '/blog',
             'view' => null,
             'callback' => null,
+            'constraints' => null,
             'methods' => ['GET'],
         ], $atto->route('blog'));
 
@@ -334,6 +336,25 @@ class AttoTest extends TestCase
     }
 
     /**
+     * Test match URL path to required and optional parameter with constraints.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::match()
+     */
+    public function testMatchParameterConstraint(): void
+    {
+        $atto = new Atto();
+        $atto->route('blog', '/blog/:slug[/comments/:page]', null, null, [
+            'slug' => '[\w\-]+',
+            'page' => '\d+',
+        ]);
+
+        self::assertSame('blog', $atto->match('/blog/foo-bar', 'GET')['name']);
+        self::assertSame('blog', $atto->match('/blog/foo-bar/comments/4', 'GET')['name']);
+        self::assertNull($atto->match('/blog/foo+bar/comments/4', 'GET'));
+        self::assertNull($atto->match('/blog/foo-bar/comments/4a', 'GET'));
+    }
+
+    /**
      * Test match URL path to route catch all asterisk.
      *
      * @covers \ExtendsSoftware\Atto\Atto::match()
@@ -369,8 +390,8 @@ class AttoTest extends TestCase
     {
         $atto = new Atto();
         $atto
-            ->route('blog', '/blog', null, null, ['POST', 'DELETE'])
-            ->route('blog-post', '/blog/:slug', null, null, []);
+            ->route('blog', '/blog', null, null, null, ['POST', 'DELETE'])
+            ->route('blog-post', '/blog/:slug', null, null, null, []);
 
         self::assertNull($atto->match('/blog', 'GET'));
         self::assertNull($atto->match('/blog/foo-bar', 'GET'));

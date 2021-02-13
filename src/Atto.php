@@ -205,7 +205,7 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $methods = null)
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $constraints = null, array $methods = null)
     {
         if ($name === null) {
             return $this->matched;
@@ -220,6 +220,7 @@ class Atto implements AttoInterface
             'pattern' => $pattern,
             'view' => $view,
             'callback' => $callback,
+            'constraints' => $constraints,
             'methods' => $methods ?? ['GET'],
         ];
 
@@ -319,7 +320,13 @@ class Atto implements AttoInterface
             } while ($count > 0);
 
             // Replace all parameters with a named regular expression group which will not match a forward slash.
-            $pattern = preg_replace('~:([a-z][a-z0-9_]*)~i', '(?<$1>[^/]+)', $pattern);
+            $pattern = preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]*)~i', static function ($match) use ($route): string {
+                return sprintf(
+                    '(?<%s>%s)',
+                    $match['parameter'],
+                    $route['constraints'][$match['parameter']] ?? '[^/]+'
+                );
+            }, $pattern);
             $pattern = '~^' . $pattern . '$~';
             if (preg_match($pattern, $path, $matches)) {
                 $route['matches'] = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);

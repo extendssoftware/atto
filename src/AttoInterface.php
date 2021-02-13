@@ -104,16 +104,17 @@ interface AttoInterface
      *
      * When this method is called without route name, the matched route will be returned.
      *
-     * @param string|null  $name     Name of the route.
-     * @param string|null  $pattern  URL path pattern to match.
-     * @param string|null  $view     Filename to the view file.
-     * @param Closure|null $callback Callback to call when route is matched.
-     * @param array|null   $methods  Request methods to match. If null, default method is GET.
+     * @param string|null  $name        Name of the route.
+     * @param string|null  $pattern     URL path pattern to match.
+     * @param string|null  $view        Filename to the view file.
+     * @param Closure|null $callback    Callback to call when route is matched.
+     * @param array|null   $constraints Parameter constraints.
+     * @param array|null   $methods     Request methods to match. If null, default method is GET.
      *
      * @return AttoInterface|array|null The route when found, null or AttoInterface for method chaining.
      * @see AttoInterface::assemble() For more information about matching optional and required parameters.
      */
-    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $methods = null);
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $constraints = null, array $methods = null);
 
     /**
      * Redirect to URL.
@@ -160,10 +161,15 @@ interface AttoInterface
      *
      * Query string will be ignored when matching a route. A matched route will be enhanced with matched URL parameters.
      *
-     * Every parameter (e.g. :foo) will match any character except a forward slash (/). The whole route pattern must
-     * match the URL path before the route is considered a match. If the webserver add/removes a trailing slash from the
-     * URL, the same has to be done with the route pattern. The URL path /foo/ will not match the route /foo, and /foo
-     * will not match /foo/.
+     * Every parameter (e.g. :foo) will match any character except a forward slash (/) by default. It is possible to add
+     * a constraint for a parameter to only match a certain regular expression. A parameter constraint can be added to
+     * the constraints array of a route and need to be a valid regular expression without the delimiters, which are
+     * added automatically (~ sign) and is case insensitive. When no constraint is provided, [^/]+ will be used for a
+     * parameter.
+     *
+     * The whole route pattern must match the URL path before the route is considered a match. If the webserver
+     * add/removes a trailing slash from the URL, the same has to be done with the route pattern. The URL path /foo/
+     * will not match the route /foo, and /foo will not match /foo/.
      *
      * The route pattern "*" is considered a catch-all route and will match any URL path. It's a good practise to always
      * add a catch-all route as last route. This route can, for example, be used to redirect to a 404 page. Routes
