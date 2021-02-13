@@ -221,7 +221,7 @@ class Atto implements AttoInterface
             'view' => $view,
             'callback' => $callback,
             'constraints' => $constraints,
-            'methods' => $methods ?? ['GET'],
+            'methods' => $methods,
         ];
 
         return $this;
@@ -305,7 +305,7 @@ class Atto implements AttoInterface
     {
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
-            if (!in_array($method, $route['methods'], true)) {
+            if (!in_array($method, $route['methods'] ?? ['GET'], true)) {
                 continue;
             }
 

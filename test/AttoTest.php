@@ -150,6 +150,15 @@ class AttoTest extends TestCase
             ->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure, ['subject' => '[\w\-]+'], ['POST', 'DELETE']);
 
         self::assertSame([
+            'name' => 'blog',
+            'pattern' => '/blog',
+            'view' => null,
+            'callback' => null,
+            'constraints' => null,
+            'methods' => null,
+        ], $atto->route('blog'));
+
+        self::assertSame([
             'name' => 'blog-post',
             'pattern' => '/blog/:subject',
             'view' => './blog-post.phtml',
@@ -157,15 +166,6 @@ class AttoTest extends TestCase
             'constraints' => ['subject' => '[\w\-]+'],
             'methods' => ['POST', 'DELETE'],
         ], $atto->route('blog-post'));
-
-        self::assertSame([
-            'name' => 'blog',
-            'pattern' => '/blog',
-            'view' => null,
-            'callback' => null,
-            'constraints' => null,
-            'methods' => ['GET'],
-        ], $atto->route('blog'));
 
         self::assertNull($atto->route('home'));
     }
