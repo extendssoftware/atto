@@ -125,7 +125,7 @@ class Atto implements AttoInterface
             return $this->data;
         }
 
-        if (!preg_match('~^([a-z0-9]+)((?:\.([a-z0-9]+))*)$~i', $path)) {
+        if (!preg_match('~^(?<path>([a-z0-9]+)((?:\.([a-z0-9]+))*))$~i', $path, $matches)) {
             throw new InvalidArgumentException(sprintf('Path "%s" is not a valid dot notation. Please fix the ' .
                 'notation. The colon (:), dot (.) and slash (/) characters can be used as separator. The can be used ' .
                 'interchangeably. The characters between the separator can only consist of a-z and 0-9, case ' .
@@ -133,7 +133,7 @@ class Atto implements AttoInterface
         }
 
         $reference = &$this->data;
-        $nodes = preg_split('~[:./]~', $path);
+        $nodes = preg_split('~[:./]~', $matches['path']);
 
         if ($value === null) {
             foreach ($nodes as $node) {
@@ -256,17 +256,17 @@ class Atto implements AttoInterface
         $url = $route['pattern'];
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
-            $url = preg_replace_callback('~\[([^\[\]]+)]~', static function ($match) use ($parameters): string {
+            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($parameters): string {
                 try {
                     // Find parameters and check if parameter is provided.
-                    return preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($parameters): string {
-                        $parameter = $match[1];
+                    return preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]+)~i', static function ($match) use ($parameters): string {
+                        $parameter = $match['parameter'];
                         if (!isset($parameters[$parameter])) {
                             throw new RuntimeException('');
                         }
 
                         return (string)$parameters[$parameter];
-                    }, $match[1]);
+                    }, $match['optional']);
                 } catch (Throwable $throwable) {
                     // Parameter for optional part not provided. Skip whole optional part and continue assembly.
                     return $throwable->getMessage();
@@ -275,8 +275,8 @@ class Atto implements AttoInterface
         } while ($count > 0);
 
         // Find all required parameters.
-        $url = preg_replace_callback('~:([a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
-            $parameter = $match[1];
+        $url = preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
+            $parameter = $match['parameter'];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
                     'Required parameter "%s" for route name "%s" is missing. Please provide the required parameter ' .
