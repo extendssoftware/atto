@@ -296,6 +296,8 @@ class Atto implements AttoInterface
             $value = (string)$parameters[$parameter];
             if (isset($match['constraint'])) {
                 $constraint = $match['constraint'];
+
+                // Check constraint for parameter value.
                 if (!preg_match('~^' . $constraint . '$~i', $value)) {
                     throw new RuntimeException(sprintf(
                         'Value "%s" for parameter "%s" is not allowed by constraint "%s" for route with name "%s". ' .
