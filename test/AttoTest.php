@@ -272,6 +272,19 @@ class AttoTest extends TestCase
     }
 
     /**
+     * Test assemble asterisk route.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleAsteriskRoute(): void
+    {
+        $atto = new Atto();
+        $atto->route('asterisk', '/foo*');
+        static::assertSame('/foo', $atto->assemble('asterisk'));
+    }
+
+    /**
      * Test assemble parameter with invalid constraint value.
      *
      * @covers \ExtendsSoftware\Atto\Atto::assemble()
@@ -321,24 +334,6 @@ class AttoTest extends TestCase
 
         $atto = new Atto();
         $atto->assemble('help');
-    }
-
-    /**
-     * Test assemble catch-all route.
-     *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
-     * @throws Throwable
-     */
-    public function testAssembleCatchAllRoute(): void
-    {
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Catch-all route with name "catch-all" can not be assembled. Please give ' .
-            'another route name.');
-
-        $atto = new Atto();
-        $atto
-            ->route('catch-all', '*')
-            ->assemble('catch-all');
     }
 
     /**
@@ -398,17 +393,20 @@ class AttoTest extends TestCase
     }
 
     /**
-     * Test match URL path to route catch all asterisk.
+     * Test match URL path to route with asterisk.
      *
      * @covers \ExtendsSoftware\Atto\Atto::match()
      */
-    public function testMatchCatchAllRoute(): void
+    public function testMatchAsterisk(): void
     {
         $atto = new Atto();
-        $atto->route('catch-all', '*');
+        $atto
+            ->route('foo', '/foo*')
+            ->route('catch-all', '*');
 
         self::assertSame('catch-all', $atto->match('/blog/new-post', 'GET')['name']);
         self::assertSame('catch-all', $atto->match('/help/create-new-post', 'GET')['name']);
+        self::assertSame('foo', $atto->match('/foo/bar/baz', 'GET')['name']);
     }
 
     /**

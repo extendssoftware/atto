@@ -143,15 +143,14 @@ interface AttoInterface
      * When a required parameter, every parameter outside brackets (e.g. /foo/:bar), is not provided in the parameters
      * array, a Throwable will be thrown.
      *
-     * Optional query string will be added after the route is assembled.
+     * Optional query string will be added after the route is assembled. An asterisk will be removed from the URL.
      *
      * @param string     $name       Name of the route.
      * @param array|null $parameters Route parameters.
      * @param array|null $query      Query string to add to the assembled URL.
      *
      * @return string Assembled URL for route.
-     * @throws Throwable When route with name is not found, when a required parameter for the route is not provided or
-     *                   when a catch-all route is trying to assemble.
+     * @throws Throwable When route with name is not found or when a required parameter for the route is not provided.
      */
     public function assemble(string $name, array $parameters = null, array $query = null): string;
 
@@ -176,8 +175,10 @@ interface AttoInterface
      * HTTP methods can be prefixed to the route pattern and must be separated with a pipe
      * (e.g. POST|DELETE /blog/:blogId). Default HTTP method is GET when none is given.
      *
-     * The route pattern "*" is considered a catch-all route and will match any URL path. It's a good practise to
-     * always add a catch-all route as last route. This route can, for example, be used to redirect to a 404 page.
+     * The asterisk character (*) will match any character in the URL, even a forward slash. It's a good practise to
+     * always add a catch-all route as last route using a asterisk. This route can, for example, be used to redirect to
+     * a 404 page.
+     *
      * Routes will be matched in order they are added (FIFO). Register the mostly used routes first for marginal gains.
      *
      * @param string $path   URL path to find matching route for.

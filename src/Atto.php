@@ -254,12 +254,6 @@ class Atto implements AttoInterface
 
         $parameters ??= [];
         $url = $route['pattern'];
-        if ($url === '*') {
-            throw new RuntimeException(sprintf(
-                'Catch-all route with name "%s" can not be assembled. Please give another route name.',
-                $name
-            ));
-        }
 
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
@@ -313,6 +307,9 @@ class Atto implements AttoInterface
             return $value;
         }, $url);
 
+        // Remove asterisk from URL.
+        $url = str_replace('*', '', $url);
+
         if (!empty($query)) {
             $url .= '?' . http_build_query($query);
         }
@@ -327,18 +324,13 @@ class Atto implements AttoInterface
     {
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
-            $pattern = $route['pattern'];
-            if ($pattern === '*') {
-                return $route;
-            }
-
             // Replace and save HTTP methods prefix from route pattern.
             $methods = ['GET'];
             $pattern = preg_replace_callback('~^(?<methods>\s*([a-z]+(\s*\|\s*[a-z]+)*)\s*)~i', static function ($match) use (&$methods): string {
                 $methods = array_map('trim', explode('|', strtoupper($match['methods'])));
 
                 return '';
-            }, $pattern);
+            }, $route['pattern']);
 
             if (!in_array($method, $methods, true)) {
                 continue;
@@ -351,6 +343,9 @@ class Atto implements AttoInterface
 
                 return ':' . $match['parameter'];
             }, $pattern);
+
+            // Replace asterisk to match an character.
+            $pattern = str_replace('*', '(.*)', $pattern);
 
             do {
                 // Replace everything inside brackets with an optional regular expression group inside out.
