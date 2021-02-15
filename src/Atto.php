@@ -205,7 +205,7 @@ class Atto implements AttoInterface
     /**
      * @inheritDoc
      */
-    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null, array $constraints = null, array $methods = null)
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null)
     {
         if ($name === null) {
             return $this->matched;
@@ -220,8 +220,6 @@ class Atto implements AttoInterface
             'pattern' => $pattern,
             'view' => $view,
             'callback' => $callback,
-            'constraints' => $constraints,
-            'methods' => $methods,
         ];
 
         return $this;
@@ -305,28 +303,45 @@ class Atto implements AttoInterface
     {
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
-            if (!in_array($method, $route['methods'] ?? ['GET'], true)) {
-                continue;
-            }
-
             $pattern = $route['pattern'];
             if ($pattern === '*') {
                 return $route;
             }
+
+            // Replace and save HTTP methods prefix from route pattern.
+            $methods = ['GET'];
+            $pattern = preg_replace_callback('~^(?<methods>\s*([a-z]+(\s*\|\s*[a-z]+)*)\s*)~i', static function ($match) use (&$methods): string {
+                $methods = array_map('trim', explode('|', strtoupper($match['methods'])));
+
+                return '';
+            }, $pattern);
+
+            if (!in_array($method, $methods, true)) {
+                continue;
+            }
+
+            // Replace and save constraint suffix from route pattern parameters.
+            $constraints = [];
+            $pattern = preg_replace_callback('~:(?<parameter>[a-z]\w*)<(?<constraint>[^>]+)>~i', static function ($match) use (&$constraints) {
+                $constraints[$match['parameter']] = $match['constraint'];
+
+                return ':' . $match['parameter'];
+            }, $pattern);
 
             do {
                 // Replace everything inside brackets with an optional regular expression group inside out.
                 $pattern = preg_replace('~\[([^\[\]]+)]~', '($1)?', $pattern, -1, $count);
             } while ($count > 0);
 
-            // Replace all parameters with a named regular expression group which will not match a forward slash.
-            $pattern = preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]*)~i', static function ($match) use ($route): string {
+            // Replace all parameters with a named regular expression group which will not match a forward slash or the parameter constraint.
+            $pattern = preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($constraints): string {
                 return sprintf(
                     '(?<%s>%s)',
                     $match['parameter'],
-                    $route['constraints'][$match['parameter']] ?? '[^/]+'
+                    $constraints[$match['parameter']] ?? '[^/]+'
                 );
             }, $pattern);
+
             $pattern = '~^' . $pattern . '$~';
             if (preg_match($pattern, $path, $matches)) {
                 $route['matches'] = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
