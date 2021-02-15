@@ -435,8 +435,8 @@ class AttoTest extends TestCase
             ->route('blog-post', '/blog/:slug');
 
         self::assertNull($atto->match('/blog', 'GET'));
-        self::assertNull($atto->match('/blog/foo-bar', 'POST'));
 
+        self::assertSame('blog-post', $atto->match('/blog/foo-bar', 'POST')['name']);
         self::assertSame('blog', $atto->match('/blog', 'POST')['name']);
         self::assertSame('blog', $atto->match('/blog', 'DELETE')['name']);
     }

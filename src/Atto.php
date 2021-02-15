@@ -325,14 +325,14 @@ class Atto implements AttoInterface
         $path = strtok($path, '?');
         foreach ($this->routes as $route) {
             // Replace and save HTTP methods prefix from route pattern.
-            $methods = ['GET'];
+            $methods = [];
             $pattern = preg_replace_callback('~^(?<methods>\s*([a-z]+(\s*\|\s*[a-z]+)*)\s*)~i', static function ($match) use (&$methods): string {
                 $methods = array_map('trim', explode('|', strtoupper($match['methods'])));
 
                 return '';
             }, $route['pattern']);
 
-            if (!in_array($method, $methods, true)) {
+            if ($methods && !in_array($method, $methods, true)) { // Only check for HTTP methods when provided.
                 continue;
             }
 

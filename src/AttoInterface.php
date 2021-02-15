@@ -173,7 +173,7 @@ interface AttoInterface
      * will not match the route /foo, and /foo will not match /foo/.
      *
      * HTTP methods can be prefixed to the route pattern and must be separated with a pipe
-     * (e.g. POST|DELETE /blog/:blogId). Default HTTP method is GET when none is given.
+     * (e.g. POST|DELETE /blog/:blogId). When none HTTP method is specified, all the methods will match the route.
      *
      * The asterisk character (*) will match any character in the URL, even a forward slash. It's a good practise to
      * always add a catch-all route as last route using a asterisk. This route can, for example, be used to redirect to
