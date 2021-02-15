@@ -246,7 +246,7 @@ class Atto implements AttoInterface
         $route = $this->route($name);
         if (!$route) {
             throw new RuntimeException(sprintf(
-                'No route found with name "%s". Please check the name of the route or provide a new route with the ' .
+                'No route found with name "%s". Please check the name of the route or give a new route with the ' .
                 'same name.',
                 $name
             ));
@@ -254,6 +254,13 @@ class Atto implements AttoInterface
 
         $parameters ??= [];
         $url = $route['pattern'];
+        if ($url === '*') {
+            throw new RuntimeException(sprintf(
+                'Catch-all route with name "%s" can not be assembled. Please give another route name.',
+                $name
+            ));
+        }
+
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
             $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($parameters): string {
@@ -279,7 +286,7 @@ class Atto implements AttoInterface
             $parameter = $match['parameter'];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
-                    'Required parameter "%s" for route name "%s" is missing. Please provide the required parameter ' .
+                    'Required parameter "%s" for route name "%s" is missing. Please give the required parameter ' .
                     'or change the route URL.',
                     $parameter,
                     $route['name']
@@ -396,7 +403,7 @@ class Atto implements AttoInterface
                 } else {
                     throw new RuntimeException(sprintf(
                         'Required argument "%s" for callback is not provided in the arguments array, does not has a ' .
-                        'default value and is not nullable. Please provide the missing argument or give it a default ' .
+                        'default value and is not nullable. Please give the missing argument or give it a default ' .
                         'value.',
                         $name
                     ));

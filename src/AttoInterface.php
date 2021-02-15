@@ -150,7 +150,8 @@ interface AttoInterface
      * @param array|null $query      Query string to add to the assembled URL.
      *
      * @return string Assembled URL for route.
-     * @throws Throwable When route with name is not found or when a required parameter for the route is not provided.
+     * @throws Throwable When route with name is not found, when a required parameter for the route is not provided or
+     *                   when a catch-all route is trying to assemble.
      */
     public function assemble(string $name, array $parameters = null, array $query = null): string;
 

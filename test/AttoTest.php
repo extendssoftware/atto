@@ -266,7 +266,7 @@ class AttoTest extends TestCase
     public function testAssembleMissingRequiredParameter(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Required parameter "subject" for route name "help" is missing. Please provide ' .
+        $this->expectExceptionMessage('Required parameter "subject" for route name "help" is missing. Please give ' .
             'the required parameter or change the route URL.');
 
         $atto = new Atto();
@@ -284,11 +284,29 @@ class AttoTest extends TestCase
     public function testAssembleNonExistingRoute(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('No route found with name "help". Please check the name of the route or ' .
-            'provide a new route with the same name.');
+        $this->expectExceptionMessage('No route found with name "help". Please check the name of the route or give ' .
+            'a new route with the same name.');
 
         $atto = new Atto();
         $atto->assemble('help');
+    }
+
+    /**
+     * Test assemble catch-all route.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleCatchAllRoute(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Catch-all route with name "catch-all" can not be assembled. Please give ' .
+            'another route name.');
+
+        $atto = new Atto();
+        $atto
+            ->route('catch-all', '*')
+            ->assemble('catch-all');
     }
 
     /**
@@ -468,8 +486,8 @@ class AttoTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Required argument "arg1" for callback is not provided in the arguments array, ' .
-            'does not has a default value and is not nullable. Please provide the missing argument or give it a ' .
-            'default value.');
+            'does not has a default value and is not nullable. Please give the missing argument or give it a default ' .
+            'value.');
 
         $closure = static function (string $arg1) {
         };
