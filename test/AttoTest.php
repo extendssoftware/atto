@@ -258,6 +258,38 @@ class AttoTest extends TestCase
     }
 
     /**
+     * Test assemble parameter with valid constraint value.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleValidParameterValue(): void
+    {
+        $atto = new Atto();
+        $atto->route('blog', '/blog/:page<\d+>');
+
+        self::assertSame('/blog/4', $atto->assemble('blog', ['page' => '4']));
+    }
+
+    /**
+     * Test assemble parameter with invalid constraint value.
+     *
+     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleInvalidParameterValue(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "\d+" for route ' .
+            'with name "blog". Please give a valid value.');
+
+        $atto = new Atto();
+        $atto->route('blog', '/blog/:page<\d+>');
+
+        self::assertSame('/blog/4', $atto->assemble('blog', ['page' => 'a']));
+    }
+
+    /**
      * Test assemble with missing required parameter.
      *
      * @covers \ExtendsSoftware\Atto\Atto::assemble()

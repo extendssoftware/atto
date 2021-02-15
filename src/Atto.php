@@ -266,7 +266,7 @@ class Atto implements AttoInterface
             $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($parameters): string {
                 try {
                     // Find parameters and check if parameter is provided.
-                    return preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]+)~i', static function ($match) use ($parameters): string {
+                    return preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($parameters): string {
                         $parameter = $match['parameter'];
                         if (!isset($parameters[$parameter])) {
                             throw new RuntimeException('');
@@ -282,18 +282,33 @@ class Atto implements AttoInterface
         } while ($count > 0);
 
         // Find all required parameters.
-        $url = preg_replace_callback('~:(?<parameter>[a-z][a-z0-9_]+)~i', static function ($match) use ($route, $parameters): string {
+        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)(<(?<constraint>[^>]+)>)?~i', static function ($match) use ($name, $parameters): string {
             $parameter = $match['parameter'];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
                     'Required parameter "%s" for route name "%s" is missing. Please give the required parameter ' .
                     'or change the route URL.',
                     $parameter,
-                    $route['name']
+                    $name
                 ));
             }
 
-            return (string)$parameters[$parameter];
+            $value = (string)$parameters[$parameter];
+            if (isset($match['constraint'])) {
+                $constraint = $match['constraint'];
+                if (!preg_match('~^' . $constraint . '$~i', $value)) {
+                    throw new RuntimeException(sprintf(
+                        'Value "%s" for parameter "%s" is not allowed by constraint "%s" for route with name "%s". ' .
+                        'Please give a valid value.',
+                        $value,
+                        $parameter,
+                        $constraint,
+                        $name
+                    ));
+                }
+            }
+
+            return $value;
         }, $url);
 
         if (!empty($query)) {
@@ -349,8 +364,7 @@ class Atto implements AttoInterface
                 );
             }, $pattern);
 
-            $pattern = '~^' . $pattern . '$~';
-            if (preg_match($pattern, $path, $matches)) {
+            if (preg_match('~^' . $pattern . '$~', $path, $matches)) {
                 $route['matches'] = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
                 return $route;
