@@ -402,11 +402,15 @@ class AttoTest extends TestCase
         $atto = new Atto();
         $atto
             ->route('foo', '/foo*')
+            ->route('bar', '/bar/*/foo')
+            ->route('baz', '*/baz')
             ->route('catch-all', '*');
 
         self::assertSame('catch-all', $atto->match('/blog/new-post', 'GET')['name']);
         self::assertSame('catch-all', $atto->match('/help/create-new-post', 'GET')['name']);
         self::assertSame('foo', $atto->match('/foo/bar/baz', 'GET')['name']);
+        self::assertSame('bar', $atto->match('/bar/baz/foo', 'GET')['name']);
+        self::assertSame('baz', $atto->match('/bar/foo/baz', 'GET')['name']);
     }
 
     /**
