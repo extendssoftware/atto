@@ -3,6 +3,17 @@
 Atto is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
 render a website with ease.
 
+- [Why Atto?](#why-atto)
+- [What does Atto need?](#what-does-atto-need)
+- [How to install Atto?](#how-to-install-atto)
+- [What can Atto do?](#what-can-atto-do)
+- [How to use Atto?](#how-to-use-atto)
+  - [Routes](#routes)
+  - [Templates](#templates)
+  - [Data container](#data-container)
+  - [Callbacks](#callbacks)
+  - [Errors](#errors)
+
 ## Why Atto?
 
 There are lots of other solutions out there, like [Slim Framework](https://github.com/slimphp/Slim),
