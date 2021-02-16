@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsSoftware\Atto;
+namespace ExtendsSoftware\AttoPHP;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -10,23 +10,23 @@ use Throwable;
 use function xdebug_get_headers;
 
 /**
- * Test of class Atto.
+ * Test of class AttoPHP.
  *
- * @package ExtendsSoftware\Atto
+ * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/atto
+ * @see     https://github.com/extendssoftware/atto-php
  */
-class AttoTest extends TestCase
+class AttoPHPTest extends TestCase
 {
     /**
      * Test get/set view.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::view()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::view()
      */
     public function testView(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         self::assertNull($atto->view());
 
         $atto->view('./view.phtml');
@@ -36,11 +36,11 @@ class AttoTest extends TestCase
     /**
      * Test get/set layout.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::layout()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::layout()
      */
     public function testLayout(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         self::assertNull($atto->layout());
 
         $atto->layout('./layout.phtml');
@@ -50,11 +50,11 @@ class AttoTest extends TestCase
     /**
      * Test get/set data.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::data()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::data()
      */
     public function testData(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->data('layout.title', 'New website!')
             ->data('layout.description', 'Fancy description.');
@@ -73,7 +73,7 @@ class AttoTest extends TestCase
     /**
      * Test get/set data with invalid path notation.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::data()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::data()
      */
     public function testDataInvalidPath(): void
     {
@@ -82,21 +82,21 @@ class AttoTest extends TestCase
             'colon (:), dot (.) and slash (/) characters can be used as separator. The can be used interchangeably. ' .
             'The characters between the separator can only consist of a-z and 0-9, case insensitive.');
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->data('.path.to.set');
     }
 
     /**
      * Test get/set start callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::start()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::start()
      */
     public function testStartCallback(): void
     {
         $closure = static function () {
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->start($closure);
 
         self::assertSame($closure, $atto->start());
@@ -105,14 +105,14 @@ class AttoTest extends TestCase
     /**
      * Test get/set finish callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::finish()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::finish()
      */
     public function testFinishCallback(): void
     {
         $closure = static function () {
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->finish($closure);
 
         self::assertSame($closure, $atto->finish());
@@ -121,14 +121,14 @@ class AttoTest extends TestCase
     /**
      * Test get/set error callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::error()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::error()
      */
     public function testErrorCallback(): void
     {
         $closure = static function () {
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->error($closure);
 
         self::assertSame($closure, $atto->error());
@@ -137,14 +137,14 @@ class AttoTest extends TestCase
     /**
      * Test get/set route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::route()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::route()
      */
     public function testRoute(): void
     {
         $closure = static function () {
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('blog', '/blog')
             ->route('blog-post', '/blog/:subject', './blog-post.phtml', $closure);
@@ -170,13 +170,13 @@ class AttoTest extends TestCase
      * Test redirect to URL.
      *
      * @runInSeparateProcess
-     * @covers       \ExtendsSoftware\Atto\Atto::redirect()
+     * @covers       \ExtendsSoftware\AttoPHP\AttoPHP::redirect()
      * @throws Throwable
      * @noinspection ForgottenDebugOutputInspection
      */
     public function testRedirectToUrl(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->redirect('/blog');
 
         self::assertContains('Location: /blog', xdebug_get_headers());
@@ -186,13 +186,13 @@ class AttoTest extends TestCase
      * Test redirect to route.
      *
      * @runInSeparateProcess
-     * @covers       \ExtendsSoftware\Atto\Atto::redirect()
+     * @covers       \ExtendsSoftware\AttoPHP\AttoPHP::redirect()
      * @throws Throwable
      * @noinspection ForgottenDebugOutputInspection
      */
     public function testRedirectToRoute(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('blog-post', '/blog/:slug')
             ->redirect('blog-post', ['slug' => 'new-post']);
@@ -203,12 +203,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble static URL.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleStaticUrl(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('contact', '/contact');
 
         self::assertSame('/contact', $atto->assemble('contact'));
@@ -217,12 +217,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble with query string.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleQueryString(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog[/:page]');
 
         self::assertSame('/blog/3?sort=desc', $atto->assemble('blog', ['page' => 3], ['sort' => 'desc']));
@@ -231,12 +231,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble with required parameter.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleRequiredParameter(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('help', '/help/:subject');
 
         self::assertSame('/help/create-new-post', $atto->assemble('help', ['subject' => 'create-new-post']));
@@ -245,12 +245,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble with optional parameters.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleOptionalParameter(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog-post', '/blog[/:slug[/comments/:page]]');
 
         self::assertSame('/blog/new-post', $atto->assemble('blog-post', ['slug' => 'new-post']));
@@ -260,12 +260,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble parameter with valid constraint value.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleValidParameterValue(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog/:page<\d+>');
 
         self::assertSame('/blog/4', $atto->assemble('blog', ['page' => '4']));
@@ -274,12 +274,12 @@ class AttoTest extends TestCase
     /**
      * Test assemble asterisk route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleAsteriskRoute(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('asterisk', '/foo*');
         static::assertSame('/foo', $atto->assemble('asterisk'));
     }
@@ -287,7 +287,7 @@ class AttoTest extends TestCase
     /**
      * Test assemble parameter with invalid constraint value.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleInvalidParameterValue(): void
@@ -296,7 +296,7 @@ class AttoTest extends TestCase
         $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "\d+" for route ' .
             'with name "blog". Please give a valid value.');
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog/:page<\d+>');
 
         self::assertSame('/blog/4', $atto->assemble('blog', ['page' => 'a']));
@@ -305,7 +305,7 @@ class AttoTest extends TestCase
     /**
      * Test assemble with missing required parameter.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleMissingRequiredParameter(): void
@@ -314,7 +314,7 @@ class AttoTest extends TestCase
         $this->expectExceptionMessage('Required parameter "subject" for route name "help" is missing. Please give ' .
             'the required parameter or change the route URL.');
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('help', '/help/:subject')
             ->assemble('help');
@@ -323,7 +323,7 @@ class AttoTest extends TestCase
     /**
      * Test assemble non-existing route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::assemble()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
     public function testAssembleNonExistingRoute(): void
@@ -332,18 +332,18 @@ class AttoTest extends TestCase
         $this->expectExceptionMessage('No route found with name "help". Please check the name of the route or give ' .
             'a new route with the same name.');
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->assemble('help');
     }
 
     /**
      * Test match URL path to route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchStaticUrl(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', 'GET|POST /blog');
 
         self::assertSame('blog', $atto->match('/blog', 'GET')['name']);
@@ -352,11 +352,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to route with required parameter.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchRequiredParameter(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog/:page');
 
         self::assertSame('blog', $atto->match('/blog/4', 'GET')['name']);
@@ -365,11 +365,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to route with optional parameters.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchOptionalParameters(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog-post', '/blog/:slug[/comments[/:page]]');
 
         self::assertSame('blog-post', $atto->match('/blog/new-post', 'GET')['name']);
@@ -380,11 +380,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to required and optional parameter with constraints.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchParameterConstraint(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog/:slug<[a-z\-]+>[/comments/:page<\d+>]');
 
         self::assertSame('blog', $atto->match('/blog/foo-bar', 'GET')['name']);
@@ -396,11 +396,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to route with asterisk.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchAsterisk(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('foo', '/foo*')
             ->route('bar', '/bar/*/foo')
@@ -417,11 +417,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to no route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchNoMatch(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog');
 
         self::assertNull($atto->match('/blog/new-post', 'GET'));
@@ -430,11 +430,11 @@ class AttoTest extends TestCase
     /**
      * Test match URL path to no route.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
      */
     public function testMatchRequestMethods(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('blog', 'POST|DELETE /blog')
             ->route('blog-post', '/blog/:slug');
@@ -449,12 +449,12 @@ class AttoTest extends TestCase
     /**
      * Test render file.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::render()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::render()
      * @throws Throwable
      */
     public function testRenderFile(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->data('title', 'Homepage');
 
         self::assertSame('<h1>Homepage</h1>', $atto->render(__DIR__ . '/render/view.phtml'));
@@ -463,12 +463,12 @@ class AttoTest extends TestCase
     /**
      * Test render file.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::render()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::render()
      * @throws Throwable
      */
     public function testRenderString(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
 
         self::assertSame('<h1>Homepage</h1>', $atto->render('<h1>Homepage</h1>'));
     }
@@ -476,7 +476,7 @@ class AttoTest extends TestCase
     /**
      * Test render throwable inside included file.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::render()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::render()
      * @throws Throwable
      */
     public function testRenderCallbackThrowable(): void
@@ -484,14 +484,14 @@ class AttoTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Thrown inside included file.');
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->render(__DIR__ . '/render/throwable.phtml');
     }
 
     /**
      * Test closure call.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::call()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::call()
      * @throws Throwable
      */
     public function testCall(): void
@@ -505,7 +505,7 @@ class AttoTest extends TestCase
             $newThis::assertNull($arg4);
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->call($closure, $newThis, [
             'arg1' => 'foo',
         ]);
@@ -514,7 +514,7 @@ class AttoTest extends TestCase
     /**
      * Test closure call with missing required argument.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::call()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::call()
      * @throws Throwable
      */
     public function testCallRequiredArgumentMissing(): void
@@ -527,22 +527,22 @@ class AttoTest extends TestCase
         $closure = static function (string $arg1) {
         };
 
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->call($closure, $this);
     }
 
     /**
      * Test run with expected flow.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRun(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->layout(__DIR__ . '/render/layout.phtml')
             ->route('blog', '/blog', __DIR__ . '/render/view.phtml', function () {
-                /** @var AttoInterface $this */
+                /** @var AttoPHPInterface $this */
                 $this->data('title', 'Homepage');
             });
 
@@ -552,16 +552,16 @@ class AttoTest extends TestCase
     /**
      * Test run with route view overwriting earlier set view.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunViewOverwrite(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->view(__DIR__ . '/render/throwable.phtml')
             ->layout(__DIR__ . '/render/layout.phtml')
             ->route('blog', '/blog', __DIR__ . '/render/view.phtml', function () {
-                /** @var AttoInterface $this */
+                /** @var AttoPHPInterface $this */
                 $this->data('title', 'Homepage');
             });
 
@@ -571,11 +571,11 @@ class AttoTest extends TestCase
     /**
      * Test run with short circuit from start callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromStartCallback(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->start(function () {
             return 'short circuit';
         });
@@ -586,11 +586,11 @@ class AttoTest extends TestCase
     /**
      * Test run with short circuit from finish callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromFinishCallback(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->finish(function () {
             return 'short circuit';
         });
@@ -601,11 +601,11 @@ class AttoTest extends TestCase
     /**
      * Test run with short circuit from error callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromErrorCallback(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->error(function (Throwable $throwable) {
                 return $throwable->getMessage() . ' 2';
@@ -620,11 +620,11 @@ class AttoTest extends TestCase
     /**
      * Test run with caught Throwable from route callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromCaughtException(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog', null, function () {
             throw new RuntimeException('short circuit');
         });
@@ -635,11 +635,11 @@ class AttoTest extends TestCase
     /**
      * Test run with caught Throwable from error callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromCaughtErrorCallback(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->error(function () {
                 throw new RuntimeException('short circuit 2');
@@ -654,11 +654,11 @@ class AttoTest extends TestCase
     /**
      * Test run with short circuit from matched route callback.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::run()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::run()
      */
     public function testRunWithReturnFromRoute(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto->route('blog', '/blog', null, function () {
             return 'short circuit';
         });
@@ -669,12 +669,12 @@ class AttoTest extends TestCase
     /**
      * Test run and matched route will be returned.
      *
-     * @covers \ExtendsSoftware\Atto\Atto::match()
-     * @covers \ExtendsSoftware\Atto\Atto::route()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::match()
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::route()
      */
     public function testRunMatchedRoute(): void
     {
-        $atto = new Atto();
+        $atto = new AttoPHP();
         $atto
             ->route('blog', '/blog')
             ->run('/blog', 'GET');

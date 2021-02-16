@@ -1,6 +1,6 @@
 # AttoPHP
 
-Atto is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
+AttoPHP is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
 render a website with ease.
 
 - [Introduction](#introduction)
@@ -22,12 +22,12 @@ There are lots of other solutions out there, like [Slim Framework](https://githu
 their own specialties, dependencies and all recommend installing with Composer.
 
 What if you want a simple website, fast but with nice SEO URLs and PHP templating without the skills of a programmer?
-Atto can be the right choice for you. Small, no dependencies and available in a single file without a namespace to use
-easily over FTP.
+AttoPHP can be the right choice for you. Small, no dependencies and available in a single file without a namespace to
+use easily over FTP.
 
-Atto is not as comprehensive as the others, but it is fast and simple to use. Once you understand some core principles,
-you are good to go. Some very basic PHP knowledge is preferred, but if you can read and modify some simple PHP, you will
-come to an end.
+AttoPHP is not as comprehensive as the others, but it is fast and simple to use. Once you understand some core
+principles, you are good to go. Some very basic PHP knowledge is preferred, but if you can read and modify some simple
+PHP, you will come to an end.
 
 ## Requirements
 
@@ -36,21 +36,21 @@ come to an end.
 
 ## Installation
 
-It is very easy to install Atto with [Composer](https://getcomposer.org/):
+It is very easy to install AttoPHP with [Composer](https://getcomposer.org/):
 
 ```
-$ composer require extendssoftware/atto
+$ composer require extendssoftware/atto-php
 ```
 
-If you want to use Atto as a single PHP file, copy the files from the ```dist``` folder in the web root of your site. Or
-download the files to a local directory and run the following command to see Atto in action:
+If you want to use AttoPHP as a single PHP file, copy the files from the ```dist``` folder in the web root of your site.
+Or download the files to a local directory and run the following command to see AttoPHP in action:
 
 ```
 $ php -S localhost:8000
 ```
 
 The ```dist``` folder also contains ```index.php```, with some basic routes, and some templates. It is recommended to
-place the Atto PHP file and templates outside the web root.
+place the AttoPHP PHP file and templates outside the web root.
 
 ## Features
 
@@ -62,18 +62,18 @@ Not that much, but just enough to get your site started:
 - Render PHP templates: layout, view and partial
 - Data container
 
-In every callback and template Atto is the current object ```$this```, so whatever you are doing, you can use these
+In every callback and template AttoPHP is the current object ```$this```, so whatever you are doing, you can use these
 features.
 
 Everybody familiar with [jQuery](https://jquery.com/) knows how a combined get/set method works. Let's consider the
 ```view``` method. When this method is called without argument, the current set view will be returned, or null when no
 view set. When this method is called with a view filename, the view will be set. Normally, when using proper
 [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming), this will be two methods, ```getView``` and
-```setView```. Atto uses combined methods to keep it compact and fast.
+```setView```. AttoPHP uses combined methods to keep it compact and fast.
 
 ## Usage
 
-After everything is set up, the method ```run``` needs to be called to run Atto and get the rendered content back.
+After everything is set up, the method ```run``` needs to be called to run AttoPHP and get the rendered content back.
 
 ### Routes
 
@@ -133,7 +133,8 @@ a route is not included during route assembly. An HTTP method can also be used f
 
 #### View and callback
 
-The view for a route is optional. When a route matches and has a view set, this view will be set to Atto for later use.
+The view for a route is optional. When a route matches and has a view set, this view will be set to AttoPHP for later
+use.
 
 When you want any of the URL parameters available in the callback, you need to add callback arguments matching the exact
 same name as the route parameters. The value will be of type string. When a route parameter is optional, the argument
@@ -173,14 +174,14 @@ Will match any route that begins with ```/blog/``` and ends with ```.html```.
 
 ### Templates
 
-PHP include is used to render a template with the ```render``` method. Atto is set as the current object ```$this``` for
-the template to render. Atto calls this method for the layout and view, when set. When you call the ```render``` method
-manually, you have to specify the current object for the template. When you render a template from a template or a
-callback, you can pass ```$this``` as the second parameter or your own object.
+PHP include is used to render a template with the ```render``` method. AttoPHP is set as the current object ```$this```
+for the template to render. AttoPHP calls this method for the layout and view, when set. When you call the ```render```
+method manually, you have to specify the current object for the template. When you render a template from a template or
+a callback, you can pass ```$this``` as the second parameter or your own object.
 
 ### Data container
 
-Atto has a data container which can be called with the method ```data```. Any data you like can be set to the data
+AttoPHP has a data container which can be called with the method ```data```. Any data you like can be set to the data
 container and used in every callback and template. The path to set the data for must use dot notation with a colon, dot
 or forward slash as separator. They can be used interchangeably, but it is not recommended. The characters between the
 separator can only consist of a-z and 0-9, case-insensitive.
@@ -195,10 +196,10 @@ The advantage of dot notation is the grouping of data. For example, you can grou
 ### Callbacks
 
 If a callback returns a [truly value](https://www.php.net/manual/en/function.boolval.php), this value will be directly
-returned by the Atto method ```run``` and execution is stopped afterwards.
+returned by the AttoPHP method ```run``` and execution is stopped afterwards.
 
-The current object ```$this``` for a callback is the Atto class. All the functionality Atto provides is available in the
-callback.
+The current object ```$this``` for a callback is the AttoPHP class. All the functionality AttoPHP provides is available
+in the callback.
 
 #### Start
 
@@ -221,14 +222,14 @@ This callback is called when an error occurs. The occurred error is available as
 
 ### Errors
 
-Atto catches all the errors that occur while running. If there is no callback error, or the callback doesn't return a
+AttoPHP catches all the errors that occur while running. If there is no callback error, or the callback doesn't return a
 truly value, the error message from the original error will be returned. If the error occurred while rendering a
 template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
 HTML element.
 
 ## Control flow
 
-To get a basic idea of how Atto works the [happy path](https://en.wikipedia.org/wiki/Happy_path) is explained here:
+To get a basic idea of how AttoPHP works the [happy path](https://en.wikipedia.org/wiki/Happy_path) is explained here:
 
 - If set, call start callback
     - If truly return value, return value and stop execution

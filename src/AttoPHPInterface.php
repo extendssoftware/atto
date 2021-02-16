@@ -1,26 +1,26 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsSoftware\Atto;
+namespace ExtendsSoftware\AttoPHP;
 
 use Closure;
 use InvalidArgumentException;
 use Throwable;
 
 /**
- * Atto Interface.
+ * AttoPHP Interface.
  *
- * Atto is a tool based on the builder pattern to configure, route and render a website in no time.
+ * AttoPHP is a tool based on the builder pattern to configure, route and render a website in no time.
  *
- * @package ExtendsSoftware\Atto
+ * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/atto
+ * @see     https://github.com/extendssoftware/atto-php
  */
-interface AttoInterface
+interface AttoPHPInterface
 {
     /**
-     * Version of Atto.
+     * Version of AttoPHP.
      *
      * @var string
      */
@@ -31,7 +31,7 @@ interface AttoInterface
      *
      * @param Closure|null $callback
      *
-     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|Closure|null The callback when found, null or AttoPHPInterface for method chaining.
      */
     public function start(Closure $callback = null);
 
@@ -40,7 +40,7 @@ interface AttoInterface
      *
      * @param Closure|null $callback
      *
-     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|Closure|null The callback when found, null or AttoPHPInterface for method chaining.
      */
     public function finish(Closure $callback = null);
 
@@ -49,7 +49,7 @@ interface AttoInterface
      *
      * @param Closure|null $callback
      *
-     * @return AttoInterface|Closure|null The callback when found, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|Closure|null The callback when found, null or AttoPHPInterface for method chaining.
      */
     public function error(Closure $callback = null);
 
@@ -58,7 +58,7 @@ interface AttoInterface
      *
      * @param string|null $filename Filename to set.
      *
-     * @return AttoInterface|string|null The view filename when set, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|string|null The view filename when set, null or AttoPHPInterface for method chaining.
      */
     public function view(string $filename = null);
 
@@ -67,7 +67,7 @@ interface AttoInterface
      *
      * @param string|null $filename Filename to set.
      *
-     * @return AttoInterface|string|null The layout filename when set, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|string|null The layout filename when set, null or AttoPHPInterface for method chaining.
      */
     public function layout(string $filename = null);
 
@@ -77,7 +77,7 @@ interface AttoInterface
      * @param string|null $path  Dot notation path to get/set data for.
      * @param mixed       $value Value to set.
      *
-     * @return AttoInterface|mixed|null Data for name when found, all data, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|mixed|null Data for name when found, all data, null or AttoPHPInterface for method chaining.
      * @throws InvalidArgumentException When path dot notation is wrong.
      */
     public function data(string $path = null, $value = null);
@@ -86,13 +86,13 @@ interface AttoInterface
      * Get/set route.
      *
      * @param string|null  $name     Name of the route.
-     * @param string|null  $url      URL to match.
+     * @param string|null  $pattern  URL pattern to match.
      * @param string|null  $view     Filename to the view file.
      * @param Closure|null $callback Callback to call when route is matched.
      *
-     * @return AttoInterface|array|null The route when found, null or AttoInterface for method chaining.
+     * @return AttoPHPInterface|array|null The route when found, null or AttoPHPInterface for method chaining.
      */
-    public function route(string $name = null, string $url = null, string $view = null, Closure $callback = null);
+    public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null);
 
     /**
      * Redirect to URL.
@@ -152,7 +152,7 @@ interface AttoInterface
     public function call(Closure $callback, object $newThis, array $arguments = null);
 
     /**
-     * Run Atto in four steps.
+     * Run AttoPHP in four steps.
      *
      * @param string|null $path   URL path to match. Default is REQUEST_URI from the server environment.
      * @param string|null $method Request method. Default is REQUEST_METHOD from the server environment.

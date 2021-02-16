@@ -1,7 +1,7 @@
 {
-  "name": "extendssoftware/atto",
-  "description": "Atto is a tool based on the builder pattern to configure, route and render a website in no time.",
-  "homepage": "https://github.com/extendssoftware/atto",
+  "name": "extendssoftware/atto-php",
+  "description": "AttoPHP is a tool based on the builder pattern to configure, route and render a website in no time.",
+  "homepage": "https://github.com/extendssoftware/atto-php",
   "license": "MIT",
   "authors": [
     {
@@ -19,12 +19,12 @@
   },
   "autoload": {
     "psr-4": {
-      "ExtendsSoftware\\Atto\\": "src/"
+      "ExtendsSoftware\\AttoPHP\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "ExtendsSoftware\\Atto\\": "test/"
+      "ExtendsSoftware\\AttoPHP\\": "test/"
     }
   }
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ExtendsSoftware\Atto;
+namespace ExtendsSoftware\AttoPHP;
 
 use Closure;
 use InvalidArgumentException;
@@ -23,14 +23,14 @@ use function sprintf;
 use function strtok;
 
 /**
- * Implementation of AttoInterface.
+ * Implementation of AttoPHPInterface.
  *
- * @package ExtendsSoftware\Atto
+ * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
  * @version 0.1.0
- * @see     https://github.com/extendssoftware/atto
+ * @see     https://github.com/extendssoftware/atto-php
  */
-class Atto implements AttoInterface
+class AttoPHP implements AttoPHPInterface
 {
     /**
      * Filename for view file.
