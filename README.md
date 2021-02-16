@@ -8,11 +8,11 @@ render a website with ease.
 - [How to install Atto?](#how-to-install-atto)
 - [What can Atto do?](#what-can-atto-do)
 - [How to use Atto?](#how-to-use-atto)
-  - [Routes](#routes)
-  - [Templates](#templates)
-  - [Data container](#data-container)
-  - [Callbacks](#callbacks)
-  - [Errors](#errors)
+    - [Routes](#routes)
+    - [Templates](#templates)
+    - [Data container](#data-container)
+    - [Callbacks](#callbacks)
+    - [Errors](#errors)
 
 ## Why Atto?
 
@@ -64,10 +64,16 @@ Not that much, but just enough to get your site started:
 In every callback and template Atto is the current object ```$this```, so whatever you are doing, you can use these
 features.
 
+Everybody familiar with [jQuery](https://jquery.com/) knows how a combined get/set method works. Let's consider the
+```view``` method. When this method is called without argument, the current set view will be returned, or null when
+no view set. When this method is called with a view filename, the view will be set. Normally, when using proper
+[OOP](https://en.wikipedia.org/wiki/Object-oriented_programming), this will be two methods, ```getView``` and
+```setView```. Atto uses combined methods to keep it compact and fast.
+
 ## How to use Atto?
 
-Atto consists of some basic principles. They will be covered in this chapter. After everything is set up, the method
-```run``` needs to be called. The [happy path](https://en.wikipedia.org/wiki/Happy_path) is:
+After everything is set up, the method ```run``` needs to be called. The
+[happy path](https://en.wikipedia.org/wiki/Happy_path) is:
 
 - If set, call start callback
     - If truly return value, return value and stop execution
