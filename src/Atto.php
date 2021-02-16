@@ -462,7 +462,7 @@ class Atto implements AttoInterface
             if ($view) {
                 $render = $this->render($view, $this);
 
-                $this->data('view', $render);
+                $this->data('atto.view', $render);
             }
 
             $layout = $this->layout();
