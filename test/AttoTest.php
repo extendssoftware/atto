@@ -370,9 +370,10 @@ class AttoTest extends TestCase
     public function testMatchOptionalParameters(): void
     {
         $atto = new Atto();
-        $atto->route('blog-post', '/blog/:slug[/comments/:page]');
+        $atto->route('blog-post', '/blog/:slug[/comments[/:page]]');
 
         self::assertSame('blog-post', $atto->match('/blog/new-post', 'GET')['name']);
+        self::assertSame('blog-post', $atto->match('/blog/new-post/comments', 'GET')['name']);
         self::assertSame('blog-post', $atto->match('/blog/new-post/comments/4', 'GET')['name']);
     }
 
