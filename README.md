@@ -13,7 +13,7 @@ render a website with ease.
     - [Data container](#data-container)
     - [Callbacks](#callbacks)
     - [Errors](#errors)
-- [Happy path](#happy-path)
+- [Control flow](#control-flow)
 
 ## Introduction
 
@@ -226,7 +226,7 @@ truly value, the error message from the original error will be returned. If the 
 template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
 HTML element.
 
-## Happy path
+## Control flow
 
 To get a basic idea of how Atto works the [happy path](https://en.wikipedia.org/wiki/Happy_path) is explained here:
 
