@@ -8,12 +8,12 @@ render a website with ease.
 - [Installation](#installation)
 - [Features](#features)
 - [Usage](#usage)
-    - [Happy path](#happy-path)
     - [Routes](#routes)
     - [Templates](#templates)
     - [Data container](#data-container)
     - [Callbacks](#callbacks)
     - [Errors](#errors)
+- [Happy path](#happy-path)
 
 ## Introduction
 
@@ -73,32 +73,7 @@ view set. When this method is called with a view filename, the view will be set.
 
 ## Usage
 
-After everything is set up, the method ```run``` needs to be called to run Atto and get the rendered content back. First
-the happy path will be explained to get a basic idea how Atto works, followed by the concepts Atto uses.
-
-### Happy path
-The [happy path](https://en.wikipedia.org/wiki/Happy_path) is:
-
-- If set, call start callback
-    - If truly return value, return value and stop execution
-- Find a matching route, if found:
-    - Set matched route to Atto
-    - If set, set the view to Atto
-    - If set, call the route callback
-        - If truly return value, return value and stop execution
-- If set, render view
-    - Set rendered content to data container with path ```atto.view```
-- If set, render layout
-- If set, call finish callback
-    - If truly return value, return value and stop execution
-- Return rendered content
-
-On error:
-
-- If set, call error callback
-    - If truly return value, return value and stop execution
-    - If callback error, return error message and stop execution
-- Return error message
+After everything is set up, the method ```run``` needs to be called to run Atto and get the rendered content back.
 
 ### Routes
 
@@ -250,3 +225,28 @@ Atto catches all the errors that occur while running. If there is no callback er
 truly value, the error message from the original error will be returned. If the error occurred while rendering a
 template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
 HTML element.
+
+## Happy path
+
+To get a basic idea of how Atto works the [happy path](https://en.wikipedia.org/wiki/Happy_path) is explained here:
+
+- If set, call start callback
+    - If truly return value, return value and stop execution
+- Find a matching route, if found:
+    - Set matched route to Atto
+    - If set, set the view to Atto
+    - If set, call the route callback
+        - If truly return value, return value and stop execution
+- If set, render view
+    - Set rendered content to data container with path ```atto.view```
+- If set, render layout
+- If set, call finish callback
+    - If truly return value, return value and stop execution
+- Return rendered content
+
+On error:
+
+- If set, call error callback
+    - If truly return value, return value and stop execution
+    - If callback error, return error message and stop execution
+- Return error message
