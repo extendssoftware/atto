@@ -8,6 +8,7 @@ render a website with ease.
 - [Installation](#installation)
 - [Features](#features)
 - [Usage](#usage)
+    - [Happy path](#happy-path)
     - [Routes](#routes)
     - [Templates](#templates)
     - [Data container](#data-container)
@@ -72,8 +73,11 @@ view set. When this method is called with a view filename, the view will be set.
 
 ## Usage
 
-After everything is set up, the method ```run``` needs to be called. The
-[happy path](https://en.wikipedia.org/wiki/Happy_path) is:
+After everything is set up, the method ```run``` needs to be called to run Atto and get the rendered content back. First
+the happy path will be explained to get a basic idea how Atto works, followed by the concepts Atto uses.
+
+### Happy path
+The [happy path](https://en.wikipedia.org/wiki/Happy_path) is:
 
 - If set, call start callback
     - If truly return value, return value and stop execution
