@@ -3,18 +3,18 @@
 Atto is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
 render a website with ease.
 
-- [Why Atto?](#why-atto)
-- [What does Atto need?](#what-does-atto-need)
-- [How to install Atto?](#how-to-install-atto)
-- [What can Atto do?](#what-can-atto-do)
-- [How to use Atto?](#how-to-use-atto)
+- [Introduction](#introduction)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Features](#features)
+- [Usage](#usage)
     - [Routes](#routes)
     - [Templates](#templates)
     - [Data container](#data-container)
     - [Callbacks](#callbacks)
     - [Errors](#errors)
 
-## Why Atto?
+## Introduction
 
 There are lots of other solutions out there, like [Slim Framework](https://github.com/slimphp/Slim),
 [bramus/router](https://github.com/bramus/router), [Twig](https://github.com/twigphp/Twig) and many others. Each with
@@ -28,12 +28,12 @@ Atto is not as comprehensive as the others, but it is fast and simple to use. On
 you are good to go. Some very basic PHP knowledge is preferred, but if you can read and modify some simple PHP, you will
 come to an end.
 
-## What does Atto need?
+## Requirements
 
 - PHP ^7.4 || ^8.0
 - [URL rewriting](https://en.wikipedia.org/wiki/Rewrite_engine)
 
-## How to install Atto?
+## Installation
 
 It is very easy to install Atto with [Composer](https://getcomposer.org/):
 
@@ -51,7 +51,7 @@ $ php -S localhost:8000
 The ```dist``` folder also contains ```index.php```, with some basic routes, and some templates. It is recommended to
 place the Atto PHP file and templates outside the web root.
 
-## What can Atto do?
+## Features
 
 Not that much, but just enough to get your site started:
 
@@ -65,12 +65,12 @@ In every callback and template Atto is the current object ```$this```, so whatev
 features.
 
 Everybody familiar with [jQuery](https://jquery.com/) knows how a combined get/set method works. Let's consider the
-```view``` method. When this method is called without argument, the current set view will be returned, or null when
-no view set. When this method is called with a view filename, the view will be set. Normally, when using proper
+```view``` method. When this method is called without argument, the current set view will be returned, or null when no
+view set. When this method is called with a view filename, the view will be set. Normally, when using proper
 [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming), this will be two methods, ```getView``` and
 ```setView```. Atto uses combined methods to keep it compact and fast.
 
-## How to use Atto?
+## Usage
 
 After everything is set up, the method ```run``` needs to be called. The
 [happy path](https://en.wikipedia.org/wiki/Happy_path) is:
