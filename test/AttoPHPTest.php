@@ -14,7 +14,7 @@ use function xdebug_get_headers;
  *
  * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
- * @version 0.1.0
+ * @version 1.0.0
  * @see     https://github.com/extendssoftware/atto-php
  */
 class AttoPHPTest extends TestCase

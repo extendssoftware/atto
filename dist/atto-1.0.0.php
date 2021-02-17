@@ -8,7 +8,7 @@ declare(strict_types=1);
  *
  * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
- * @version 0.1.0
+ * @version 1.0.0
  * @see     https://github.com/extendssoftware/atto-php
  */
 interface AttoPHPInterface
@@ -18,7 +18,7 @@ interface AttoPHPInterface
      *
      * @var string
      */
-    public const VERSION = '0.1.0';
+    public const VERSION = '1.0.0';
 
     /**
      * Get/set start callback.
@@ -161,7 +161,7 @@ interface AttoPHPInterface
  *
  * @package ExtendsSoftware\AttoPHP
  * @author  Vincent van Dijk <vincent@extends.nl>
- * @version 0.1.0
+ * @version 1.0.0
  * @see     https://github.com/extendssoftware/atto-php
  */
 class AttoPHP implements AttoPHPInterface
