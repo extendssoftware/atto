@@ -1,5 +1,9 @@
 # AttoPHP
 
+[![License](https://poser.pugx.org/extendssoftware/atto-php/license)](https://packagist.org/packages/extendssoftware/atto-php)
+[![Latest Stable Version](https://poser.pugx.org/extendssoftware/atto-php/v/stable)](https://packagist.org/packages/extendssoftware/atto-php)
+[![Total Downloads](https://poser.pugx.org/extendssoftware/atto-php/downloads)](https://packagist.org/packages/extendssoftwarr/atto-php)
+
 AttoPHP is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
 render a website with ease.
 
