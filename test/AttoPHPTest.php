@@ -19,6 +19,69 @@ use function xdebug_get_headers;
  */
 class AttoPHPTest extends TestCase
 {
+
+    /**
+     * Test get/set start callback.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::start()
+     */
+    public function testStartCallback(): void
+    {
+        $closure = static function () {
+        };
+
+        $atto = new AttoPHP();
+        $atto->start($closure);
+
+        self::assertSame($closure, $atto->start());
+    }
+
+    /**
+     * Test get/set finish callback.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::finish()
+     */
+    public function testFinishCallback(): void
+    {
+        $closure = static function () {
+        };
+
+        $atto = new AttoPHP();
+        $atto->finish($closure);
+
+        self::assertSame($closure, $atto->finish());
+    }
+
+    /**
+     * Test get/set error callback.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::error()
+     */
+    public function testErrorCallback(): void
+    {
+        $closure = static function () {
+        };
+
+        $atto = new AttoPHP();
+        $atto->error($closure);
+
+        self::assertSame($closure, $atto->error());
+    }
+
+    /**
+     * Test get/set root.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::root()
+     */
+    public function testRoot(): void
+    {
+        $atto = new AttoPHP();
+        self::assertNull($atto->root());
+
+        $atto->root('./render');
+        self::assertSame('./render', $atto->root());
+    }
+
     /**
      * Test get/set view.
      *
@@ -84,54 +147,6 @@ class AttoPHPTest extends TestCase
 
         $atto = new AttoPHP();
         $atto->data('.path.to.set');
-    }
-
-    /**
-     * Test get/set start callback.
-     *
-     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::start()
-     */
-    public function testStartCallback(): void
-    {
-        $closure = static function () {
-        };
-
-        $atto = new AttoPHP();
-        $atto->start($closure);
-
-        self::assertSame($closure, $atto->start());
-    }
-
-    /**
-     * Test get/set finish callback.
-     *
-     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::finish()
-     */
-    public function testFinishCallback(): void
-    {
-        $closure = static function () {
-        };
-
-        $atto = new AttoPHP();
-        $atto->finish($closure);
-
-        self::assertSame($closure, $atto->finish());
-    }
-
-    /**
-     * Test get/set error callback.
-     *
-     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::error()
-     */
-    public function testErrorCallback(): void
-    {
-        $closure = static function () {
-        };
-
-        $atto = new AttoPHP();
-        $atto->error($closure);
-
-        self::assertSame($closure, $atto->error());
     }
 
     /**
@@ -457,7 +472,23 @@ class AttoPHPTest extends TestCase
         $atto = new AttoPHP();
         $atto->data('title', 'Homepage');
 
-        self::assertSame('<h1>Homepage</h1>', $atto->render(__DIR__ . '/render/view.phtml'));
+        self::assertSame('<h1>Homepage</h1>', $atto->render(__DIR__ . '/templates/view.phtml'));
+    }
+
+    /**
+     * Test render file with root set.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::render()
+     * @throws Throwable
+     */
+    public function testRenderFileWithRoot(): void
+    {
+        $atto = new AttoPHP();
+        $atto
+            ->root(__DIR__ . '/templates/')
+            ->data('title', 'Homepage');
+
+        self::assertSame('<h1>Homepage</h1>', $atto->render('view.phtml'));
     }
 
     /**
@@ -485,7 +516,7 @@ class AttoPHPTest extends TestCase
         $this->expectExceptionMessage('Thrown inside included file.');
 
         $atto = new AttoPHP();
-        $atto->render(__DIR__ . '/render/throwable.phtml');
+        $atto->render(__DIR__ . '/templates/throwable.phtml');
     }
 
     /**
@@ -540,8 +571,8 @@ class AttoPHPTest extends TestCase
     {
         $atto = new AttoPHP();
         $atto
-            ->layout(__DIR__ . '/render/layout.phtml')
-            ->route('blog', '/blog', __DIR__ . '/render/view.phtml', function () {
+            ->layout(__DIR__ . '/templates/layout.phtml')
+            ->route('blog', '/blog', __DIR__ . '/templates/view.phtml', function () {
                 /** @var AttoPHPInterface $this */
                 $this->data('title', 'Homepage');
             });
@@ -558,9 +589,9 @@ class AttoPHPTest extends TestCase
     {
         $atto = new AttoPHP();
         $atto
-            ->view(__DIR__ . '/render/throwable.phtml')
-            ->layout(__DIR__ . '/render/layout.phtml')
-            ->route('blog', '/blog', __DIR__ . '/render/view.phtml', function () {
+            ->view(__DIR__ . '/templates/throwable.phtml')
+            ->layout(__DIR__ . '/templates/layout.phtml')
+            ->route('blog', '/blog', __DIR__ . '/templates/view.phtml', function () {
                 /** @var AttoPHPInterface $this */
                 $this->data('title', 'Homepage');
             });

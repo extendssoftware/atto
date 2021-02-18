@@ -7,19 +7,31 @@
 AttoPHP is a tool based on the [builder pattern](https://en.wikipedia.org/wiki/Builder_pattern) to configure, route and
 render a website with ease.
 
-- [Introduction](#introduction)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Features](#features)
-- [Usage](#usage)
-    - [Routes](#routes)
-    - [Templates](#templates)
-    - [Data container](#data-container)
-    - [Callbacks](#callbacks)
-    - [Errors](#errors)
-- [Control flow](#control-flow)
+- [1. Introduction](#1-introduction)
+- [2. Requirements](#2-requirements)
+- [3. Installation](#3-installation)
+- [4. Features](#4-features)
+- [5. Usage](#5-usage)
+    - [5.1 Routes](#51-routes)
+        - [5.1. Name](#511-name)
+        - [5.1.1 Pattern match and assemble](#512-pattern-match-and-assemble)
+        - [5.1.2 Constraints and HTTP methods](#513-constraints-and-http-methods)
+        - [5.1.3 View and callback](#514-view-and-callback)
+        - [5.1.4 Examples](#515-examples)
+    - [5.2 Templates](#52-templates)
+        - [5.2. Template directory](#521-template-directory)
+        - [5.2. Inline template](#522-inline-templates)
+        - [5.2. Layout and view](#523-layout-and-view)
+    - [5.3 Data container](#53-data-container)
+    - [5.4 Callbacks](#54-callbacks)
+        - [5.4.1 Start](#541-start)
+        - [5.4.1 Route](#542-route)
+        - [5.4.1 Finish](#543-finish)
+        - [5.4.1 Error](#544-error)
+- [6. Control flow](#6-control-flow)
+- [7. Error handling](#7-error-handling)
 
-## Introduction
+## 1. Introduction
 
 There are lots of other solutions out there, like [Slim Framework](https://github.com/slimphp/Slim),
 [bramus/router](https://github.com/bramus/router), [Twig](https://github.com/twigphp/Twig) and many others. Each with
@@ -33,12 +45,12 @@ AttoPHP is not as comprehensive as the others, but it is fast and simple to use.
 principles, you are good to go. Some very basic PHP knowledge is preferred, but if you can read and modify some simple
 PHP, you will come to an end.
 
-## Requirements
+## 2. Requirements
 
 - PHP ^7.4 || ^8.0
 - [URL rewriting](https://en.wikipedia.org/wiki/Rewrite_engine)
 
-## Installation
+## 3. Installation
 
 It is very easy to install AttoPHP with [Composer](https://getcomposer.org/):
 
@@ -56,7 +68,7 @@ $ php -S localhost:8000
 The ```dist``` folder also contains ```index.php```, with some basic routes, and some templates. It is recommended to
 place the AttoPHP PHP file and templates outside the web root.
 
-## Features
+## 4. Features
 
 Not that much, but just enough to get your site started:
 
@@ -75,11 +87,11 @@ view set. When this method is called with a view filename, the view will be set.
 [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming), this will be two methods, ```getView``` and
 ```setView```. AttoPHP uses combined methods to keep it compact and fast.
 
-## Usage
+## 5 Usage
 
 After everything is set up, the method ```run``` needs to be called to run AttoPHP and get the rendered content back.
 
-### Routes
+### 5.1 Routes
 
 It all begins with matching a URL to a view and/or callback. A route can have the following properties:
 
@@ -88,13 +100,13 @@ It all begins with matching a URL to a view and/or callback. A route can have th
 - View
 - Callback
 
-#### Name
+#### 5.1.1 Name
 
 The route name can be anything you like. The route name is required and used to the get the route during assembling, for
 example in a template. With the option to assembles routes, there is no need to change a URL in every place of the
 website. Just change the URL and it will change everywhere as long as you keep the name the same.
 
-#### Pattern (match and assemble)
+#### 5.1.2 Pattern (match and assemble)
 
 The pattern will be used to check if the route matches the URL. Route matching is done for the path of the URL,
 everything behind the top-level domain (TLD), and without the query string ```/foo/bar/baz```.
@@ -113,7 +125,7 @@ This also applies to route assembly. An optional part will only assemble when al
 every nested optional part is also assembled. The route part with the parameter baz from the route
 ```/foo[/:bar[/:baz]]``` will only assemble when the parameter bar is also specified.
 
-#### Constraints and HTTP methods
+#### 5.1.3 Constraints and HTTP methods
 
 Constraints can be specified for route parameters. A constraint is a
 [regular expression](https://en.wikipedia.org/wiki/Regular_expression) without the delimiters ```[a-z0-9-]+```. A
@@ -135,7 +147,7 @@ of the route pattern, must be divided by a pipe and have a trailing whitespace c
 ```POST|DELETE /blog/:blogId```. When no HTTP method is specified, all methods will match the route. The HTTP method for
 a route is not included during route assembly. An HTTP method can also be used for a route with an asterisk.
 
-#### View and callback
+#### 5.1.4 View and callback
 
 The view for a route is optional. When a route matches and has a view set, this view will be set to AttoPHP for later
 use.
@@ -148,7 +160,7 @@ order of the arguments does not matter.
 To get the matched route in the callback or a template, the method ```route``` must be called without any arguments. The
 matched route also contains all the matched URL parameters.
 
-#### Examples
+#### 5.1.5 Examples
 
 ```
 /blog[/:page<\d+>]
@@ -176,14 +188,34 @@ Catch-all route, will match any URL for any HTTP method.
 
 Will match any route that begins with ```/blog/``` and ends with ```.html```.
 
-### Templates
+### 5.2 Templates
 
 PHP include is used to render a template with the ```render``` method. AttoPHP is set as the current object ```$this```
 for the template to render. AttoPHP calls this method for the layout and view, when set. When you call the ```render```
 method manually, you have to specify the current object for the template. When you render a template from a template or
 a callback, you can pass ```$this``` as the second parameter or your own object.
 
-### Data container
+#### 5.2.1 Template directory
+
+To always set the full path to a template can be cumbersome, to counter this, the method ```root``` can be called with a
+path to the template directory. When a template is rendered, AttoPHP will check if the specified template is a file. If
+so, the template will be rendered and returned. When it is not a file and a template root directory is set, the
+directory is checked if the file exists. If so, render that file.
+
+#### 5.2.2 Inline templates
+
+A template is considered an inline template when no file can be found at the absolute or relative path. This can be
+useful when templates are stored in a database. With this method PHP rendering is not available, and the template will
+be directly returned by the ```render``` method. If you want to parse this template, you can use a template parser in
+combination with the ```render``` method.
+
+#### 5.2.3 Layout and view
+
+AttoPHP has methods to set a layout and a view, ```layout``` and ```view``` respectively. If set, the view will be
+rendered before the layout is, if set. The rendered view will be available in the layout as the data container path
+```atto.view```.
+
+### 5.3 Data container
 
 AttoPHP has a data container which can be called with the method ```data```. Any data you like can be set to the data
 container and used in every callback and template. The path to set the data for must use dot notation with a colon, dot
@@ -197,7 +229,7 @@ Keep in mind that every separator makes the following key a nested value for the
 The advantage of dot notation is the grouping of data. For example, you can group all the data for the layout,
 ```layout.title``` for the title and ```layout.description``` for the description.
 
-### Callbacks
+### 5.4 Callbacks
 
 If a callback returns a [truly value](https://www.php.net/manual/en/function.boolval.php), this value will be directly
 returned by the AttoPHP method ```run``` and execution is stopped afterwards.
@@ -205,33 +237,26 @@ returned by the AttoPHP method ```run``` and execution is stopped afterwards.
 The current object ```$this``` for a callback is the AttoPHP class. All the functionality AttoPHP provides is available
 in the callback.
 
-#### Start
+#### 5.4.1 Start
 
 This callback is called before routing begins and has no arguments.
 
-#### Route
+#### 5.4.2 Route
 
 This callback is called when a route is matched and has a callback specified. The route parameters can be specified as
 arguments. For example, the parameter ```:blogId``` will be available as the argument ```$blogId```.
 
-#### Finish
+#### 5.4.3 Finish
 
 This callback is called after the layout and/or view are rendered. The rendered content will be available as argument
 with the name ```$render```.
 
-#### Error
+#### 5.4.4 Error
 
 This callback is called when an error occurs. The occurred error is available as argument with the name
 ```$throwable```.
 
-### Errors
-
-AttoPHP catches all the errors that occur while running. If there is no callback error, or the callback doesn't return a
-truly value, the error message from the original error will be returned. If the error occurred while rendering a
-template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
-HTML element.
-
-## Control flow
+## 6 Control flow
 
 To get a basic idea of how AttoPHP works the [happy path](https://en.wikipedia.org/wiki/Happy_path) is explained here:
 
@@ -255,3 +280,10 @@ On error:
     - If truly return value, return value and stop execution
     - If callback error, return error message and stop execution
 - Return error message
+
+## 7 Error handling
+
+AttoPHP catches all the errors that occur while running. If there is no callback error, or the callback doesn't return a
+truly value, the error message from the original error will be returned. If the error occurred while rendering a
+template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
+HTML element.

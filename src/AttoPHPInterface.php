@@ -54,6 +54,15 @@ interface AttoPHPInterface
     public function error(Closure $callback = null);
 
     /**
+     * Set root path for templates.
+     *
+     * @param string|null $path Path to the templates directory.
+     *
+     * @return AttoPHPInterface|string|null The root path when set, null or AttoPHPInterface for method chaining.
+     */
+    public function root(string $path = null);
+
+    /**
      * Get/set view file.
      *
      * @param string|null $filename Filename to set.
@@ -77,7 +86,8 @@ interface AttoPHPInterface
      * @param string|null $path  Dot notation path to get/set data for.
      * @param mixed       $value Value to set.
      *
-     * @return AttoPHPInterface|mixed|null Data for name when found, all data, null or AttoPHPInterface for method chaining.
+     * @return AttoPHPInterface|mixed|null Data for name when found, all data, null or AttoPHPInterface for method
+     *                                     chaining.
      * @throws InvalidArgumentException When path dot notation is wrong.
      */
     public function data(string $path = null, $value = null);

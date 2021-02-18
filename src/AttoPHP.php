@@ -33,6 +33,13 @@ use function strtok;
 class AttoPHP implements AttoPHPInterface
 {
     /**
+     * Templates root.
+     *
+     * @var string|null
+     */
+    protected ?string $root = null;
+
+    /**
      * Filename for view file.
      *
      * @var string|null
@@ -87,6 +94,62 @@ class AttoPHP implements AttoPHPInterface
      * @var Closure|null
      */
     protected ?Closure $error = null;
+
+    /**
+     * @inheritDoc
+     */
+    public function start(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->start;
+        }
+
+        $this->start = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function finish(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->finish;
+        }
+
+        $this->finish = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function error(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->error;
+        }
+
+        $this->error = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function root(string $path = null)
+    {
+        if ($path === null) {
+            return $this->root;
+        }
+
+        $this->root = $path;
+
+        return $this;
+    }
 
     /**
      * @inheritDoc
@@ -156,48 +219,6 @@ class AttoPHP implements AttoPHPInterface
         }
 
         $reference = $value;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function start(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->start;
-        }
-
-        $this->start = $callback;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function finish(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->finish;
-        }
-
-        $this->finish = $callback;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function error(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->error;
-        }
-
-        $this->error = $callback;
 
         return $this;
     }
@@ -373,6 +394,7 @@ class AttoPHP implements AttoPHPInterface
 
     /**
      * @inheritDoc
+     * @noinspection PhpIncludeInspection
      */
     public function render(string $filename, object $newThis = null): string
     {
@@ -380,10 +402,14 @@ class AttoPHP implements AttoPHPInterface
             ob_start();
             try {
                 if (is_file($filename)) {
-                    /** @noinspection PhpIncludeInspection */
                     include $filename;
                 } else {
-                    echo $filename;
+                    $root = $this->root();
+                    if($root && is_file($root . $filename)) {
+                        include $root . $filename;
+                    } else {
+                        echo $filename;
+                    }
                 }
 
                 return ob_get_clean();
