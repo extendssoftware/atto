@@ -278,21 +278,41 @@ class AttoPHP implements AttoPHPInterface
 
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
-            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($parameters): string {
-                try {
-                    // Find parameters and check if parameter is provided.
-                    return preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($parameters): string {
-                        $parameter = $match['parameter'];
+            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($name, $parameters): string {
+                $optional = $match['optional'];
+
+                // Find all parameters in optional part.
+                if (preg_match_all('~(?<definition>:(?<parameter>[a-z]\w*)(<(?<constraint>[^>]+)>)?)~i', $optional, $matches, PREG_PATTERN_ORDER)) {
+                    foreach ($matches['definition'] as $index => $definition) {
+                        $parameter = $matches['parameter'][$index];
                         if (!isset($parameters[$parameter])) {
-                            throw new RuntimeException('');
+                            // Parameter is not specified, skip whole optional part.
+                            return '';
                         }
 
-                        return (string)$parameters[$parameter];
-                    }, $match['optional']);
-                } catch (Throwable $throwable) {
-                    // Parameter for optional part not provided. Skip whole optional part and continue assembly.
-                    return $throwable->getMessage();
+                        $value = (string)$parameters[$parameter];
+                        if ($matches['constraint'][$index]) {
+                            $constraint = $matches['constraint'][$index];
+
+                            // Check constraint for parameter value.
+                            if (!preg_match('~^' . $constraint . '$~i', $value)) {
+                                throw new RuntimeException(sprintf(
+                                    'Value "%s" for parameter "%s" is not allowed by constraint "%s" for route with ' .
+                                    'name "%s". Please give a valid value.',
+                                    $value,
+                                    $parameter,
+                                    $constraint,
+                                    $name
+                                ));
+                            }
+                        }
+
+                        // Replace parameter definition with value.
+                        $optional = str_replace($definition, $value, $optional);
+                    }
                 }
+
+                return $optional;
             }, $url, -1, $count);
         } while ($count > 0);
 

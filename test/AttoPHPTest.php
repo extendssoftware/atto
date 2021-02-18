@@ -266,7 +266,7 @@ class AttoPHPTest extends TestCase
     public function testAssembleOptionalParameter(): void
     {
         $atto = new AttoPHP();
-        $atto->route('blog-post', '/blog[/:slug[/comments/:page]]');
+        $atto->route('blog-post', '/blog[/:slug[/comments/:page<\d+>]]');
 
         self::assertSame('/blog/new-post', $atto->assemble('blog-post', ['slug' => 'new-post']));
         self::assertSame('/blog/new-post/comments/4', $atto->assemble('blog-post', ['slug' => 'new-post', 'page' => 4]));
@@ -300,21 +300,39 @@ class AttoPHPTest extends TestCase
     }
 
     /**
-     * Test assemble parameter with invalid constraint value.
+     * Test assemble required parameter with invalid constraint value.
      *
      * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
      * @throws Throwable
      */
-    public function testAssembleInvalidParameterValue(): void
+    public function testAssembleInvalidRequiredParameterValue(): void
     {
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "\d+" for route ' .
             'with name "blog". Please give a valid value.');
 
         $atto = new AttoPHP();
-        $atto->route('blog', '/blog/:page<\d+>');
+        $atto
+            ->route('blog', '/blog/:page<\d+>')
+            ->assemble('blog', ['page' => 'a']);
+    }
 
-        self::assertSame('/blog/4', $atto->assemble('blog', ['page' => 'a']));
+    /**
+     * Test assemble optional parameter with invalid constraint value.
+     *
+     * @covers \ExtendsSoftware\AttoPHP\AttoPHP::assemble()
+     * @throws Throwable
+     */
+    public function testAssembleInvalidOptionalParameterValue(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "\d+" for route ' .
+            'with name "blog". Please give a valid value.');
+
+        $atto = new AttoPHP();
+        $atto
+            ->route('blog', '/blog[/:page<\d+>]')
+            ->assemble('blog', ['page' => 'a']);
     }
 
     /**
