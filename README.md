@@ -30,6 +30,7 @@ render a website with ease.
         - [5.4.1 Error](#544-error)
 - [6. Control flow](#6-control-flow)
 - [7. Error handling](#7-error-handling)
+- [8. Example](#8-example)
 
 ## 1. Introduction
 
@@ -58,15 +59,17 @@ It is very easy to install AttoPHP with [Composer](https://getcomposer.org/):
 $ composer require extendssoftware/atto-php
 ```
 
-If you want to use AttoPHP as a single PHP file, copy the files from the ```dist``` folder in the web root of your site.
-Or download the files to a local directory and run the following command to see AttoPHP in action:
+If you want to use AttoPHP as a single PHP file, copy the files from the
+[dist](https://github.com/extendssoftware/atto-php/releases/tag/1.0.0) directory in the web root of your site. Or
+download the files to a local directory and run the following command to see AttoPHP in action:
 
 ```
 $ php -S localhost:8000
 ```
 
-The ```dist``` folder also contains ```index.php```, with some basic routes, and some templates. It is recommended to
-place the AttoPHP PHP file and templates outside the web root.
+The [dist](https://github.com/extendssoftware/atto-php/tree/1.0.0/dist) directory also contains
+[index.php](https://github.com/extendssoftware/atto-php/tree/1.0.0/dist/index.php), with some basic routes, and some
+templates. It is recommended to place the AttoPHP PHP file and templates outside the web root.
 
 ## 4. Features
 
@@ -287,3 +290,7 @@ AttoPHP catches all the errors that occur while running. If there is no callback
 truly value, the error message from the original error will be returned. If the error occurred while rendering a
 template, the output if cleaned before the error will be returned. So, an error wil never show deeply nested inside an
 HTML element.
+
+## 8 Example
+
+Take a look in the [dist](https://github.com/extendssoftware/atto-php/tree/1.0.0/dist) directory for a working example.
