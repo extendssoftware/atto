@@ -48,6 +48,15 @@ interface AttoPHPInterface
     public function error(Closure $callback = null);
 
     /**
+     * Set root path for templates.
+     *
+     * @param string|null $path Path to the templates directory.
+     *
+     * @return AttoPHPInterface|string|null The root path when set, null or AttoPHPInterface for method chaining.
+     */
+    public function root(string $path = null);
+
+    /**
      * Get/set view file.
      *
      * @param string|null $filename Filename to set.
@@ -71,7 +80,8 @@ interface AttoPHPInterface
      * @param string|null $path  Dot notation path to get/set data for.
      * @param mixed       $value Value to set.
      *
-     * @return AttoPHPInterface|mixed|null Data for name when found, all data, null or AttoPHPInterface for method chaining.
+     * @return AttoPHPInterface|mixed|null Data for name when found, all data, null or AttoPHPInterface for method
+     *                                     chaining.
      * @throws InvalidArgumentException When path dot notation is wrong.
      */
     public function data(string $path = null, $value = null);
@@ -167,6 +177,13 @@ interface AttoPHPInterface
 class AttoPHP implements AttoPHPInterface
 {
     /**
+     * Templates root.
+     *
+     * @var string|null
+     */
+    protected ?string $root = null;
+
+    /**
      * Filename for view file.
      *
      * @var string|null
@@ -221,6 +238,62 @@ class AttoPHP implements AttoPHPInterface
      * @var Closure|null
      */
     protected ?Closure $error = null;
+
+    /**
+     * @inheritDoc
+     */
+    public function start(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->start;
+        }
+
+        $this->start = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function finish(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->finish;
+        }
+
+        $this->finish = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function error(Closure $callback = null)
+    {
+        if ($callback === null) {
+            return $this->error;
+        }
+
+        $this->error = $callback;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function root(string $path = null)
+    {
+        if ($path === null) {
+            return $this->root;
+        }
+
+        $this->root = $path;
+
+        return $this;
+    }
 
     /**
      * @inheritDoc
@@ -297,48 +370,6 @@ class AttoPHP implements AttoPHPInterface
     /**
      * @inheritDoc
      */
-    public function start(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->start;
-        }
-
-        $this->start = $callback;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function finish(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->finish;
-        }
-
-        $this->finish = $callback;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function error(Closure $callback = null)
-    {
-        if ($callback === null) {
-            return $this->error;
-        }
-
-        $this->error = $callback;
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function route(string $name = null, string $pattern = null, string $view = null, Closure $callback = null)
     {
         if ($name === null) {
@@ -389,28 +420,56 @@ class AttoPHP implements AttoPHPInterface
         $parameters ??= [];
         $url = $route['pattern'];
 
+        // Replace and save constraint suffix from route pattern parameters.
+        $constraints = [];
+        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)<(?<constraint>[^>]+)>~i', static function ($match) use (&$constraints) {
+            $parameter = $match['parameter'];
+            $constraints[$parameter] = $match['constraint'];
+
+            return ':' . $parameter;
+        }, $url);
+
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
-            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($parameters): string {
-                try {
-                    // Find parameters and check if parameter is provided.
-                    return preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($parameters): string {
-                        $parameter = $match['parameter'];
+            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($name, $parameters, $constraints): string {
+                $optional = $match['optional'];
+
+                // Find all parameters in optional part.
+                if (preg_match_all('~:(?<parameter>[a-z]\w*)~i', $optional, $matches)) {
+                    foreach ($matches['parameter'] as $parameter) {
                         if (!isset($parameters[$parameter])) {
-                            throw new RuntimeException('');
+                            // Parameter is not specified, skip whole optional part.
+                            return '';
                         }
 
-                        return (string)$parameters[$parameter];
-                    }, $match['optional']);
-                } catch (Throwable $throwable) {
-                    // Parameter for optional part not provided. Skip whole optional part and continue assembly.
-                    return $throwable->getMessage();
+                        $value = (string)$parameters[$parameter];
+                        if (isset($constraints[$parameter])) {
+                            $constraint = $constraints[$parameter];
+
+                            // Check constraint for parameter value.
+                            if (!preg_match('~^' . $constraint . '$~i', $value)) {
+                                throw new RuntimeException(sprintf(
+                                    'Value "%s" for parameter "%s" is not allowed by constraint "%s" for route with ' .
+                                    'name "%s". Please give a valid value.',
+                                    $value,
+                                    $parameter,
+                                    $constraint,
+                                    $name
+                                ));
+                            }
+                        }
+
+                        // Replace parameter definition with value.
+                        $optional = str_replace(':' . $parameter, $value, $optional);
+                    }
                 }
+
+                return $optional;
             }, $url, -1, $count);
         } while ($count > 0);
 
         // Find all required parameters.
-        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)(<(?<constraint>[^>]+)>)?~i', static function ($match) use ($name, $parameters): string {
+        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($name, $parameters, $constraints): string {
             $parameter = $match['parameter'];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
@@ -422,8 +481,8 @@ class AttoPHP implements AttoPHPInterface
             }
 
             $value = (string)$parameters[$parameter];
-            if (isset($match['constraint'])) {
-                $constraint = $match['constraint'];
+            if (isset($constraints[$parameter])) {
+                $constraint = $constraints[$parameter];
 
                 // Check constraint for parameter value.
                 if (!preg_match('~^' . $constraint . '$~i', $value)) {
@@ -473,9 +532,10 @@ class AttoPHP implements AttoPHPInterface
             // Replace and save constraint suffix from route pattern parameters.
             $constraints = [];
             $pattern = preg_replace_callback('~:(?<parameter>[a-z]\w*)<(?<constraint>[^>]+)>~i', static function ($match) use (&$constraints) {
-                $constraints[$match['parameter']] = $match['constraint'];
+                $parameter = $match['parameter'];
+                $constraints[$parameter] = $match['constraint'];
 
-                return ':' . $match['parameter'];
+                return ':' . $parameter;
             }, $pattern);
 
             // Replace asterisk to match an character.
@@ -507,6 +567,7 @@ class AttoPHP implements AttoPHPInterface
 
     /**
      * @inheritDoc
+     * @noinspection PhpIncludeInspection
      */
     public function render(string $filename, object $newThis = null): string
     {
@@ -514,10 +575,14 @@ class AttoPHP implements AttoPHPInterface
             ob_start();
             try {
                 if (is_file($filename)) {
-                    /** @noinspection PhpIncludeInspection */
                     include $filename;
                 } else {
-                    echo $filename;
+                    $root = $this->root();
+                    if ($root && is_file($root . $filename)) {
+                        include $root . $filename;
+                    } else {
+                        echo $filename;
+                    }
                 }
 
                 return ob_get_clean();
