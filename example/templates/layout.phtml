@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title><?= $this->data('layout.title') ?></title>
+
+    <meta name="description" content="<?= $this->data('layout.description') ?>">
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a href="<?= $this->assemble('home') ?>">Homepage</a></li>
+            <li>
+                <a href="<?= $this->assemble('blog') ?>">Blog</a>
+                <ul>
+                    <li>
+                        Page:
+                        <a href="<?= $this->assemble('blog') ?>">1</a>
+                        <a href="<?= $this->assemble('blog', ['page' => 2]) ?>">2</a>
+                        <a href="<?= $this->assemble('blog', ['page' => 3]) ?>">3</a>
+                    </li>
+                    <li>
+                        <a href="<?= $this->assemble('blog-post', ['slug' => 'dummy-article']) ?>">Dummy article</a>
+                    </li>
+                </ul>
+            </li>
+            <li><a href="<?= $this->assemble('contact') ?>">Contact</a></li>
+            <li><a href="<?= '/foo' ?>">Doesn't exist</a></li>
+        </ul>
+    </nav>
+</header>
+<main>
+    <?= $this->data('atto.view') ?>
+    <p>Title: <?= $this->data('layout.title') ?></p>
+    <p>Description: <?= $this->data('layout.description') ?></p>
+</main>
+</body>
