@@ -266,7 +266,7 @@ class AttoPHPTest extends TestCase
     public function testAssembleOptionalParameter(): void
     {
         $atto = new AttoPHP();
-        $atto->route('blog-post', '/blog[/:slug[/comments/:page<\d+>]]');
+        $atto->route('blog-post', '/blog[/:slug<[a-z-]+>[/comments/:page<\d+>]]');
 
         self::assertSame('/blog/new-post', $atto->assemble('blog-post', ['slug' => 'new-post']));
         self::assertSame('/blog/new-post/comments/4', $atto->assemble('blog-post', ['slug' => 'new-post', 'page' => 4]));
@@ -308,12 +308,12 @@ class AttoPHPTest extends TestCase
     public function testAssembleInvalidRequiredParameterValue(): void
     {
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "\d+" for route ' .
+        $this->expectExceptionMessage('Value "a" for parameter "page" is not allowed by constraint "[\d]+" for route ' .
             'with name "blog". Please give a valid value.');
 
         $atto = new AttoPHP();
         $atto
-            ->route('blog', '/blog/:page<\d+>')
+            ->route('blog', '/blog/:page<[\d]+>')
             ->assemble('blog', ['page' => 'a']);
     }
 

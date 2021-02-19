@@ -276,23 +276,31 @@ class AttoPHP implements AttoPHPInterface
         $parameters ??= [];
         $url = $route['pattern'];
 
+        // Replace and save constraint suffix from route pattern parameters.
+        $constraints = [];
+        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)<(?<constraint>[^>]+)>~i', static function ($match) use (&$constraints) {
+            $parameter = $match['parameter'];
+            $constraints[$parameter] = $match['constraint'];
+
+            return ':' . $parameter;
+        }, $url);
+
         do {
             // Match optional parts inside out. Match everything inside brackets except a opening or closing bracket.
-            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($name, $parameters): string {
+            $url = preg_replace_callback('~\[(?<optional>[^\[\]]+)]~', static function ($match) use ($name, $parameters, $constraints): string {
                 $optional = $match['optional'];
 
                 // Find all parameters in optional part.
-                if (preg_match_all('~(?<definition>:(?<parameter>[a-z]\w*)(<(?<constraint>[^>]+)>)?)~i', $optional, $matches, PREG_PATTERN_ORDER)) {
-                    foreach ($matches['definition'] as $index => $definition) {
-                        $parameter = $matches['parameter'][$index];
+                if (preg_match_all('~:(?<parameter>[a-z]\w*)~i', $optional, $matches)) {
+                    foreach ($matches['parameter'] as $parameter) {
                         if (!isset($parameters[$parameter])) {
                             // Parameter is not specified, skip whole optional part.
                             return '';
                         }
 
                         $value = (string)$parameters[$parameter];
-                        if ($matches['constraint'][$index]) {
-                            $constraint = $matches['constraint'][$index];
+                        if (isset($constraints[$parameter])) {
+                            $constraint = $constraints[$parameter];
 
                             // Check constraint for parameter value.
                             if (!preg_match('~^' . $constraint . '$~i', $value)) {
@@ -308,7 +316,7 @@ class AttoPHP implements AttoPHPInterface
                         }
 
                         // Replace parameter definition with value.
-                        $optional = str_replace($definition, $value, $optional);
+                        $optional = str_replace(':' . $parameter, $value, $optional);
                     }
                 }
 
@@ -317,7 +325,7 @@ class AttoPHP implements AttoPHPInterface
         } while ($count > 0);
 
         // Find all required parameters.
-        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)(<(?<constraint>[^>]+)>)?~i', static function ($match) use ($name, $parameters): string {
+        $url = preg_replace_callback('~:(?<parameter>[a-z]\w*)~i', static function ($match) use ($name, $parameters, $constraints): string {
             $parameter = $match['parameter'];
             if (!isset($parameters[$parameter])) {
                 throw new RuntimeException(sprintf(
@@ -329,8 +337,8 @@ class AttoPHP implements AttoPHPInterface
             }
 
             $value = (string)$parameters[$parameter];
-            if (isset($match['constraint'])) {
-                $constraint = $match['constraint'];
+            if (isset($constraints[$parameter])) {
+                $constraint = $constraints[$parameter];
 
                 // Check constraint for parameter value.
                 if (!preg_match('~^' . $constraint . '$~i', $value)) {
@@ -380,9 +388,10 @@ class AttoPHP implements AttoPHPInterface
             // Replace and save constraint suffix from route pattern parameters.
             $constraints = [];
             $pattern = preg_replace_callback('~:(?<parameter>[a-z]\w*)<(?<constraint>[^>]+)>~i', static function ($match) use (&$constraints) {
-                $constraints[$match['parameter']] = $match['constraint'];
+                $parameter = $match['parameter'];
+                $constraints[$parameter] = $match['constraint'];
 
-                return ':' . $match['parameter'];
+                return ':' . $parameter;
             }, $pattern);
 
             // Replace asterisk to match an character.
